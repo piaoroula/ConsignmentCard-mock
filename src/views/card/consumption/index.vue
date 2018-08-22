@@ -13,7 +13,7 @@
         <el-table-column prop="name" align="center" label="渠道名称"> </el-table-column>
         <el-table-column label="状态" align="center" width="140px">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.isOpen" aria-readonly="true" active-text="正常" inactive-text="禁用" disabled></el-switch>
+            <el-switch v-model="scope.row.isOpen" aria-readonly="true" on-value='true' of-value='' active-text="正常" inactive-text="禁用" disabled></el-switch>
           </template>
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="120">
@@ -41,12 +41,12 @@
 <script>
 import { mapGetters } from "vuex";
 // import moment from "moment";
-// import {
-//   listConsumptionAll,
-//   listFaceValueJoinConsumption,
-//   openConsumptionChannel,
-//   closeConsumptionChannel
-// } from '@/api/mConsumption'
+import {
+  listConsumptionAll
+  //   listFaceValueJoinConsumption,
+  //   openConsumptionChannel,
+  //   closeConsumptionChannel
+} from "@/api/mConsumption";
 
 export default {
   name: "consumptions",
@@ -74,41 +74,6 @@ export default {
     this.init();
   },
   methods: {
-    // 弹出设置
-    showDialogConsumptionSetting(id, title) {
-      this.dialogConsumptionSettingTableInit(id);
-      this.dialogConsumptionSetting.title = title;
-      this.dialogConsumptionSetting.visible = true;
-    },
-    // 弹窗内禁用启用事件
-    dialogSwitchChange(consumptionId, channelId, isOpen) {
-      if (isOpen) {
-        openConsumptionChannel(consumptionId, channelId).then(res => {
-          if (res.code === 0) {
-            this.dialogConsumptionSettingTableInit(consumptionId);
-          }
-        });
-      } else {
-        closeConsumptionChannel(consumptionId, channelId).then(res => {
-          if (res.code === 0) {
-            this.dialogConsumptionSettingTableInit(consumptionId);
-          }
-        });
-      }
-    },
-    // 加载(重新加载)弹窗数据
-    dialogConsumptionSettingTableInit(id) {
-      this.dialogConsumptionSetting.loading = true;
-      listFaceValueJoinConsumption(id).then(res => {
-        if (res.code === 0) {
-          this.dialogConsumptionSetting.list = res.data;
-          if (res.data.length > 0) {
-            // this.dialogConsumptionSetting.tableHeight = "400px";
-          }
-        }
-        this.dialogConsumptionSetting.loading = false;
-      });
-    },
     // 加载默认数据
     init() {
       this.tableConsumption.loading = true;

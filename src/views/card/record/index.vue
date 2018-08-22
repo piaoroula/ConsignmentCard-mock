@@ -83,7 +83,7 @@
     </el-table>
     <div class="box-card-pagination">
       <el-button type="primary" size="small" @click="batcheditCardState()" :loading="loadingAnginConsignment">将选中卡密重新寄售</el-button>
-      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage" :page-sizes="[10, 20, 40, 50]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper" :total="total">
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="recordSearchForm.page" :page-sizes="[10, 20, 40, 50]" :page-size="recordSearchForm.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
   </div>
@@ -92,16 +92,16 @@
 <script>
 import { mapGetters } from "vuex";
 // import moment from "moment";
-// import {
-//   GetChannels,
-//   getFaceValues,
-//   submitConsignment,
-//   GetRecords,
-//   getStatistics,
-//   getAllRecords,
-//   againConsignment
-// } from '@/api/card'
-// import selecttime from "@/data/selecttime";
+import {
+  GetChannels,
+  getFaceValues,
+  submitConsignment,
+  GetRecords,
+  getStatistics,
+  getAllRecords,
+  againConsignment
+} from "@/api/card";
+import selecttime from "@/data/selecttime";
 
 export default {
   name: "record",
@@ -183,73 +183,13 @@ export default {
       new Date().setHours(0, 0, 0),
       new Date().setHours(0, 0, 0) + 86398999
     ];
-    this.resetRecordSearch.CardNumber = this.$route.params.cardNumber;
-    this.getchannelData(this.pageSize, this.currentPage);
+    // this.resetRecordSearch.CardNumber = this.$route.params.cardNumber;
     this.getChannelList();
-    this.statistics();
+    this.getRecordList();
+    // this.statistics();
   },
 
   methods: {
-    tableRowClassName({ row, rowIndex }) {
-      if (row.useState === 4) {
-        return "failed-row";
-      }
-      return "";
-    },
-    handleSelectionChange(selection) {
-      var newSelection = [];
-      selection.forEach(row => {
-        if (row.useState !== 4) {
-          this.$refs.multipleTable.toggleRowSelection(row, false);
-        } else {
-          newSelection.push(row);
-        }
-      });
-      this.multipleSelection = newSelection;
-    },
-    // 批量提交修改的寄售状态
-    batcheditCardState(rows) {
-      if (this.multipleSelection.length > 0) {
-        let flag = false;
-        const ids = [];
-        this.multipleSelection.forEach(row => {
-          if (row.useState !== 4) {
-            flag = true;
-          }
-          ids.push(row.id);
-        });
-        if (flag) {
-          this.$message.error("批量重新寄售时，寄售状态只能是失败！");
-        } else {
-          if (ids.length < 1) {
-            this.$message.error("批量重新寄售时，请至少选择一个寄售详情！");
-          } else {
-            this.loadingAnginConsignment = true;
-            againConsignment(ids).then(res => {
-              if (res.code === 0) {
-                this.$message.success("重新寄售成功");
-                this.searchChannelData();
-              } else {
-                this.$message.error("重新寄售失败");
-              }
-              this.loadingAnginConsignment = false;
-            });
-          }
-        }
-      }
-    },
-    // 查询统计数据
-    searchStatistics(type) {
-      this.recordSearchForm.statisticsState = null;
-      this.recordSearchForm.useState = null;
-      if (type === 0 || type === 1) {
-        this.recordSearchForm.statisticsState = type;
-      }
-      if (type === 3 || type === 4) {
-        this.recordSearchForm.useState = type;
-      }
-      this.searchChannelData();
-    },
     // 设置表格第一行的颜色
     getRowClass({ row, column, rowIndex, columnIndex }) {
       if (rowIndex === 0) {
@@ -258,144 +198,46 @@ export default {
         return "";
       }
     },
-
-    // 获取卡类型
+    //获取寄售哦详情列表
+    getRecordList() {
+      this.loading = true;
+      GetRecords({
+        page: this.recordSearchForm.page,
+        limit: this.recordSearchForm.limit
+      }).then(res => {
+        if (res.code == 0) {
+          if (res.total > 0) {
+            this.channelData = res.items;
+            this.total = res.total;
+            this.loading = false;
+          } else {
+            this.channelData = [];
+            this.total = 0;
+            this.loading = false;
+            this.emptytext = "暂无数据";
+          }
+        }
+        console.log(res);
+      });
+    },
+    //获取寄售通道
     getChannelList() {
       GetChannels().then(res => {
         if (res.code === 0) {
           this.ChannelList = res.data;
         } else {
-          this.$message.error("获取寄售通道失败");
+          this.$message.error("获取寄售通道数据失败");
         }
       });
-    },
-    // 通过获取选择的寄售通道的id值，获取卡面值列表
-    selectChannels(vId) {
-      getFaceValues(vId).then(res => {
-        if (res.code === 0) {
-          this.FaceValueList = res.data;
-        } else {
-          this.$message.error("获取卡面值失败");
-        }
-      });
-    },
-
-    // 获取寄售记录
-    getchannelData() {
-      this.recordSearchForm.beginTime = moment(
-        this.recordSearchForm.times[0]
-      ).format("YYYY-MM-DD HH:mm:ss");
-      this.recordSearchForm.endTime = moment(
-        this.recordSearchForm.times[1]
-      ).format("YYYY-MM-DD HH:mm:ss");
-      GetRecords(this.recordSearchForm).then(res => {
-        this.loading = true;
-        if (res.code === 0) {
-          this.channelData = res.data;
-          this.total = res.count;
-          this.loading = false;
-          this.channelData.forEach((row, index) => {
-            row.userTime = null;
-            if (row.callbackTime !== undefined && row.addTime !== undefined) {
-              row.userTime =
-                (new Date(row.callbackTime).getTime() -
-                  new Date(row.addTime).getTime()) /
-                1000;
-            }
-          });
-        } else {
-          this.loading = false;
-          this.channelData = [];
-          this.emptytext = "暂时没有数据";
-        }
-      });
-    },
-    // 查询
-    searchChannelData() {
-      this.loading = true;
-      this.recordSearchForm.beginTime = moment(
-        this.recordSearchForm.times[0]
-      ).format("YYYY-MM-DD HH:mm:ss");
-      this.recordSearchForm.endTime = moment(
-        this.recordSearchForm.times[1]
-      ).format("YYYY-MM-DD HH:mm:ss");
-      this.recordSearchForm.page = 1;
-      GetRecords(this.recordSearchForm).then(res => {
-        if (res.code === 0) {
-          this.channelData = res.data;
-          this.total = res.count;
-          this.loading = false;
-          this.channelData.forEach((row, index) => {
-            // row.useStateName = this.GetState(row.useState);
-            row.userTime = null;
-            if (row.callbackTime !== undefined && row.addTime !== undefined) {
-              row.userTime =
-                (new Date(row.callbackTime).getTime() -
-                  new Date(row.addTime).getTime()) /
-                1000;
-            }
-          });
-        } else {
-          this.loading = false;
-          this.channelData = [];
-          this.emptytext = "没有符合条件的数据";
-          this.total = 0;
-        }
-      });
-      this.statistics();
-    },
-    reportExcel() {
-      this.recordSearchForm.beginTime = moment(
-        this.recordSearchForm.times[0]
-      ).format("YYYY-MM-DD HH:mm:ss");
-      this.recordSearchForm.endTime = moment(
-        this.recordSearchForm.times[1]
-      ).format("YYYY-MM-DD HH:mm:ss");
-      this.recordSearchForm.page = 1;
-      var data = this.recordSearchForm;
-      getAllRecords(data).then(response => {
-        if (response.code === 0) {
-          const downloadElement = document.createElement("a");
-          downloadElement.href = response.data;
-          document.body.appendChild(downloadElement);
-          downloadElement.click();
-          document.body.removeChild(downloadElement); // 下载完成移除元素
-        } else {
-          this.$message.error("导出数据失败！");
-        }
-      });
-    },
-    // 重置搜索
-    resetRecordSearch() {
-      this.recordSearchForm = {};
-      this.recordSearchForm.times = [
-        new Date().setHours(0, 0, 0),
-        new Date().setHours(0, 0, 0) + 86398999
-      ];
     },
     // 分页
     handleSizeChange(val) {
       this.recordSearchForm.limit = val;
-      this.pageSize = val;
-      this.getchannelData(this.pageSize, this.currentPage);
+      this.getRecordList();
     },
     handleCurrentChange(val) {
       this.recordSearchForm.page = val;
-      this.currentPage = val;
-      this.getchannelData(this.currentPage, this.pageSize);
-    },
-    statistics() {
-      this.recordSearchForm.beginTime = moment(
-        this.recordSearchForm.times[0]
-      ).format("YYYY-MM-DD HH:mm:ss");
-      this.recordSearchForm.endTime = moment(
-        this.recordSearchForm.times[1]
-      ).format("YYYY-MM-DD HH:mm:ss");
-      getStatistics(this.recordSearchForm).then(res => {
-        if (res.code === 0) {
-          this.numbers = res.data;
-        }
-      });
+      this.getRecordList();
     }
   }
 };

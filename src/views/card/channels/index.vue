@@ -16,10 +16,6 @@
         </el-table-column>
         <el-table-column label='操作' align="center" width='150px'>
           <template slot-scope='scope'>
-            <!-- <el-button-group>
-              <el-button type='primary' size='mini' @click="openPrice(scope.row, scope.$index)">修改费率</el-button>
-              <el-button size='mini' type='success' @click="getFacevalueList(scope.row, scope.$index)">面值管理</el-button>
-            </el-button-group> -->
             <el-dropdown :hide-on-click="false" trigger="click" style="cursor:pointer">
               <span class="el-dropdown-link">
                 操作
@@ -93,7 +89,7 @@
           <el-table-column prop="faceValue" align="center" label="面值"></el-table-column>
           <el-table-column prop="state" align="center" label="状态">
             <template slot-scope='scope'>
-              <el-switch v-model='scope.row.state' @change="editFaceValueState(scope.$index,scope.row)" active-text='正常' inactive-text='禁用'></el-switch>
+              <el-switch v-model='scope.row.state' @change="editFaceValueState(scope.$index,scope.row)" on-value='true' of-value="false" active-text='正常' inactive-text='禁用'></el-switch>
             </template>
           </el-table-column>
         </el-table>
@@ -140,15 +136,15 @@ import { mapGetters } from "vuex";
 import Kanban from "@/components/Kanban";
 import DndList from "@/components/DndList";
 import draggable from "vuedraggable";
-// import {
-//   getChannelsPage,
-//   addChannel,
-//   updateChannelState,
-//   updateChannelRate,
-//   getFaceValueM,
-//   updateFacevalueState,
-//   addfaceValue
-// } from '@/api/mChannel'
+import {
+  getChannelsPage
+  // addChannel,
+  // updateChannelState,
+  // updateChannelRate,
+  // getFaceValueM,
+  // updateFacevalueState,
+  // addfaceValue
+} from "@/api/mChannel";
 // import {
 //   listConsumptionFaceValue,
 //   updateConsumptionFaceValueOrderBy
@@ -207,171 +203,38 @@ export default {
     this.getlist();
   },
   methods: {
-    // 弹窗设置消耗渠道顺序的
-    showDialogConsumption(id, title) {
-      this.dialogConsumptionTableInit(id);
-      this.dialogConsumption.title = title;
-      this.dialogConsumption.visible = true;
-    },
-    // 加载(重新加载)渠道弹窗数据
-    dialogConsumptionTableInit(id) {
-      this.dialogConsumption.loading = true;
-      listConsumptionFaceValue(id).then(t => {
-        if (t !== undefined) {
-          this.dialogConsumption.list = t.data;
-        } else {
-          this.dialogConsumption.list = [];
-        }
-        this.dialogConsumption.loading = false;
-      });
-    },
-    setChannelConsumptionOrderBy() {
-      var array = this.dialogConsumption.list;
-      var keyValueArray = {};
-      for (let index = 0; index < array.length; index++) {
-        keyValueArray[array[index].id] = index + 1;
-      }
-      updateConsumptionFaceValueOrderBy(keyValueArray).then(t => {});
-      this.dialogConsumption.visible = false;
-    },
-    handleSizeChange(val) {
-      this.formInfo.limit = val;
-      this.getlist();
-    },
-    handleCurrentChange(val) {
-      this.formInfo.page = val;
-      this.getlist();
-    },
-    onSubmit() {
-      this.channelVisible = true;
-    },
-    openPrice(row, index) {
-      this.formRate = row;
-      this.buyRateVisible = true;
-      this.formRate.title = "修改[" + row.name + "]的费率百分比";
-    },
+    //获取通道管理
     getlist() {
-      var data = this.formInline;
+      this.loading = true;
+      var data = {
+        limit: this.formInline.limit,
+        page: this.formInline.page
+      };
       getChannelsPage(data).then(res => {
-        if (res.code === 0) {
-          if (res.data != null && res.data.length > 0) {
+        if (res.code == 0) {
+          if (res.total > 0) {
             this.tableData = res.data;
-            this.tableData.forEach((row, index) => {
-              row.private = row.private ? "是" : "否";
-            });
-            this.formInline.total = res.count;
+            this.formInline.total = res.total;
+            this.loading = false;
+          } else {
+            this.tableData = 0;
+            this.formInline.total = 0;
+            this.loading = false;
+            this.emptytext = "暂无数据";
           }
         }
+        console.log(res);
       });
     },
-    editChannelState(index, row) {
-      var obj = { Id: row.id, State: row.state };
-      updateChannelState(obj).then(res => {
-        if (res.code === 0) {
-          this.$message({
-            message: "修改通道状态成功！",
-            type: "success"
-          });
-        } else {
-          this.$message.error("修改通道状态失败！");
-        }
-      });
+    //每页
+    handleSizeChange(val) {
+      this.formInline.limit = val;
+      this.getlist();
     },
-    editFaceValueState(index, row) {
-      var obj = { Id: row.id, State: row.state };
-      updateFacevalueState(obj).then(res => {
-        if (res.code === 0) {
-          this.$message({
-            message: "修改面值状态成功！",
-            type: "success"
-          });
-        } else {
-          this.$message.error("修改面值状态失败！");
-        }
-      });
-    },
-    editPrice() {
-      this.editPriceLoading = true;
-      var obj = { channelId: this.formRate.id, buyRate: this.formRate.buyRate };
-      updateChannelRate(obj).then(resp => {
-        if (resp.code === 0) {
-          this.$message({
-            message: "修改通道费率成功！",
-            type: "success"
-          });
-          this.buyRateVisible = false;
-          this.getlist();
-        } else {
-          this.$message.error("修改通道费率失败！");
-        }
-        this.editPriceLoading = false;
-      });
-    },
-    clearFormInfo() {
-      this.formInfo.name = null;
-      this.formInfo.buyRate = null;
-      this.formFace.faceValue = null;
-    },
-    addInfo() {
-      this.addInfoLoading = true;
-      var data = this.formInfo;
-      addChannel(data).then(response => {
-        if (response.code === 0) {
-          this.$message({
-            message: "新增通道成功！",
-            type: "success"
-          });
-          this.getlist();
-          this.channelVisible = false;
-          this.clearFormInfo();
-          if (response.data != null && response.data.length > 0) {
-            this.tableData = response.data;
-            this.tableData.forEach((row, index) => {
-              row.private = row.private ? "是" : "否";
-            });
-            this.formInline.total = response.count;
-          }
-        } else {
-          this.$message.error("新增通道失败！");
-        }
-        this.addInfoLoading = false;
-      });
-    },
-    addFacevalue() {
-      this.addFacevalueLoading = true;
-      addfaceValue({
-        channelId: this.formFace.id,
-        faceValue: this.formFace.faceValue
-      }).then(res => {
-        if (res.code === 0) {
-          this.$message({
-            message: "新增面值成功！",
-            type: "success"
-          });
-          this.editFacevalueVisible = false;
-          this.getfaceList(this.formFace.id);
-          this.clearFormInfo();
-        } else {
-          this.$message.error("新增面值失败！");
-        }
-        this.addFacevalueLoading = false;
-      });
-    },
-    getFacevalueList(row, index) {
-      this.facevalueVisible = true;
-      this.formFace = row;
-      this.formFace.title = "[" + row.name + "]-面值管理";
-      this.getfaceList(row.id);
-    },
-    getfaceList(id) {
-      getFaceValueM(id).then(res => {
-        if (res.code === 0) {
-          if (res.data != null && res.data.length > 0) {
-            this.facevalueData = res.data;
-            this.facevalueData.total = res.count;
-          }
-        }
-      });
+    //当前页
+    handleCurrentChange(val) {
+      this.formInline.page = val;
+      this.getlist();
     }
   }
 };

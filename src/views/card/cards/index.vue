@@ -191,7 +191,6 @@ import clipboard from "@/directive/clipboard/index.js"; // use clipboard by v-di
 import { mapGetters } from "vuex";
 import {
   getCards,
-  getChannels,
   getFaceValues,
   updateCardState,
   getPassword,
@@ -199,6 +198,7 @@ import {
   getCardsStatistics,
   getAllCards
 } from "@/api/mCard";
+import { GetChannels } from "@/api/Card";
 // import moment from "moment";
 import selecttime from "@/data/selecttime";
 
@@ -269,11 +269,54 @@ export default {
       new Date().setHours(0, 0, 0) + 86398999
     ];
     // this.formInline.userNameOrId = this.$route.params.userName;
-    // this.getlist();
-    // this.channelList();
+    this.getlist();
+    this.getChannelList();
     // this.getStatistics();
   },
-  methods: {}
+  methods: {
+    //获取卡列表
+    getlist() {
+      this.loading = true;
+      getCards({
+        limit: this.formInline.limit,
+        page: this.formInline.page
+      }).then(res => {
+        if (res.code == 0) {
+          if (res.total > 0) {
+            this.tableData = res.items;
+            this.total = res.total;
+            this.loading = false;
+          } else {
+            this.loading = false;
+            this.total = 0;
+            this.tableData = [];
+            this.emptytext = "暂无数据";
+          }
+        }
+      });
+    },
+    //获取寄售通道
+    getChannelList() {
+      GetChannels().then(res => {
+        console.log(res);
+        if (res.code === 0) {
+          this.channels = res.data;
+        } else {
+          this.$message.error("获取寄售通道数据失败");
+        }
+      });
+    },
+    //每一页显示的数量
+    handleSizeChange(val) {
+      this.formInline.limit = val;
+      this.getlist();
+    },
+    //当前页
+    handleCurrentChange(val) {
+      this.formInline.page = val;
+      this.getlist();
+    }
+  }
 };
 </script>
 <style>

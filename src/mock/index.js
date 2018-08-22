@@ -5,7 +5,13 @@ import remoteSearchAPI from './remoteSearch'
 import transactionAPI from './transaction'
 import changePwdAPI from './changePwd'
 import userInfAPI from './userinfo'
-import carsdAPI from './cards'
+import carsdAPI from './card/cards'
+import channelAPI from './card/channel'
+import channelsAPI from './card/channels'
+import consignmentAPI from './card/consignment'
+import consumptionAPI from './card/consumption'
+import recordAPI from './card/record'
+import statisticsAPI from './card/statistics'
 // Mock.setup({
 //   timeout: '350-600'
 // })
@@ -29,11 +35,45 @@ Mock.mock(/\/api\/Account\/GetUser/, 'get', userInfAPI.getUserInf)
 Mock.mock(/\/api\/Account\/SendSmsCode/, 'post', userInfAPI.sendCodeMessage)
 Mock.mock(/\/api\/Account\/Submit/, 'post', userInfAPI.submitAcount)
 Mock.mock(/\/api\/Account\/UpdateCallbackUrl/, 'post', userInfAPI.UpdateCallbackUrlData)
+
+
+
 //寄售管理
 Mock.mock(/\/api\/Manage\/GetCards/, 'get', carsdAPI.getCardData)
 
+
+//通道列表
+Mock.mock(/\/api\/Channel\/Index/, 'get', channelAPI.getchannelData)
+
+
+
+//通道管理
+Mock.mock(/\/api\/Manage\/GetChannelsPage/, 'get', channelsAPI.getchannels)
+
+
+//我要寄售
+Mock.mock(/\/api\/Channel\/GetChannels/, 'get', consignmentAPI.getChannelList) //获取寄售通道列表
+Mock.mock(/\/api\/Channel\/GetFaceValues/, 'get', consignmentAPI.getFaceValuesData) //获取卡面值
+Mock.mock(/\/api\/Card\/Consignment/, 'post', consignmentAPI.SubmitConsignment) //普通寄售提交
+Mock.mock(/\/api\/Card\/AutoConsignment/, 'post', consignmentAPI.SubmitQuickConsignment) //快速寄售提交
+
+
+//渠道管理
+Mock.mock(/\/api\/manage\/listConsumptionAll/, 'get', consumptionAPI.getconsumptionData)
+
+
+//寄售详情
+Mock.mock(/\/api\/Card\/GetRecords/, 'post', recordAPI.getrecordData)
+
+
+//寄售汇总
+Mock.mock(/\/api\/Card\/GetMStatistics/, 'post', statisticsAPI.getStatisticsData)   //获取寄售面值分析
+Mock.mock(/\/api\/Card\/GetUStatistics/, 'post', statisticsAPI.getStatisticsUserData)   ///获取寄售用户分析
+
 // 搜索相关
 Mock.mock(/\/search\/user/, 'get', remoteSearchAPI.searchUser)
+
+
 
 // 账单相关
 Mock.mock(/\/transaction\/list/, 'get', transactionAPI.getList)

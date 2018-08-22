@@ -29,7 +29,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-// import { ChanneData } from '@/api/card'
+import { ChanneData } from "@/api/card";
 export default {
   name: "channel",
   data() {
@@ -37,11 +37,6 @@ export default {
       border: true,
       loading: false,
       emptytext: "暂时没有数据",
-      channel: {
-        Name: "",
-        FaceValue: "",
-        ConsignPrice: ""
-      },
       channelData: [
         {
           name: null,
@@ -61,35 +56,16 @@ export default {
     this.getchannelData();
   },
   methods: {
-    // 设置表格第一行的颜色
-    getRowClass({ row, column, rowIndex, columnIndex }) {
-      if (rowIndex === 0) {
-        return "background:#EFEFEF";
-      } else {
-        return "";
-      }
-    },
     // 通道列表
     getchannelData() {
       this.loading = true;
       ChanneData().then(res => {
+        console.log(res);
         if (res.code != null && res.data !== undefined) {
           this.loading = false;
           this.channelData = res.data;
         }
-        this.loading = false;
       });
-    },
-    //
-    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
-      if (columnIndex === 0) {
-        const _row = this.spanArr[rowIndex];
-        const _col = _row > 0 ? 1 : 0;
-        return {
-          rowspan: _row,
-          colspan: _col
-        };
-      }
     }
   }
 };

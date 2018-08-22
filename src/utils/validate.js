@@ -51,3 +51,9 @@ export function isvalidatephone(str) {
   var reg = /^1[345678]\d{9}$/
   return reg.test(str)
 }
+/*合法的卡密*/
+export function isvalidateCards(str) {
+  var reg = /^[0-9]*$/
+  // var reg = /^[0-9]*$/ + /\s+/g + /^[0-9]*$/
+  return reg.test(str)
+}

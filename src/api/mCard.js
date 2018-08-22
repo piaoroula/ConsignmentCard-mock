@@ -3,7 +3,7 @@ import request from '@/utils/request'
 export function getCards(data) {
   return request({
     url: '/api/Manage/GetCards',
-    method: 'post',
+    method: 'get',
     data
   })
 }

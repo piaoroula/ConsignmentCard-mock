@@ -63,10 +63,10 @@
 
 <script>
 import { mapGetters } from "vuex";
-// import { getStatistics, getUStatistics } from '@/api/mStatistics'
-import { getRoles } from "@/utils/auth";
-// import moment from "moment";
-// import selecttime from "@/data/selecttime";
+import { getStatistics, getUStatistics } from "@/api/mStatistics";
+//import { getRoles } from "@/utils/auth";
+import moment from "moment";
+import selecttime from "@/data/selecttime";
 
 export default {
   name: "statistics",
@@ -76,16 +76,13 @@ export default {
   data() {
     return {
       activeName: "facevalue",
-      showU: false,
+      showU: true,
       list: [],
       uList: [],
       loading: false,
       uloading: false,
       profitFrom: {
         times: [],
-        page: 1,
-        limit: 40,
-        total: 0,
         endTime: null,
         beginTime: null
       },
@@ -98,114 +95,80 @@ export default {
       sIdx: 0
     };
   },
-  filters: {
-    statusFilter(status) {
-      const statusMap = {
-        success: "success",
-        pending: "danger"
-      };
-      return statusMap[status];
-    },
-    orderNoFilter(str) {
-      return str.substring(0, 30);
-    }
-  },
   created() {
     this.pickerOptions2.shortcuts = selecttime.shortcuts;
     this.profitFrom.times = [
       new Date(new Date().setHours(0, 0, 0)),
       new Date()
     ];
-    if (getRoles().indexOf("Manage") >= 0) {
-      this.showU = true;
-    }
+    // if (getRoles().indexOf("Manage") >= 0) {
+    //   this.showU = true;
+    // }
     this.fetchData();
+    this.fetchUData();
   },
   methods: {
+    // 设置表格第一行的颜色
+    getRowClass({ row, column, rowIndex, columnIndex }) {
+      if (rowIndex === 0) {
+        return "background:#EFEFEF";
+      } else {
+        return "";
+      }
+    },
+    //获取寄售面值分析
     fetchData() {
       this.loading = true;
-      this.profitFrom.beginTime = moment(this.profitFrom.times[0]).format(
+      this.profitFrom.times[0] = moment(this.profitFrom.times[0]).format(
         "YYYY-MM-DD HH:mm:ss"
       );
-      this.profitFrom.endTime = moment(this.profitFrom.times[1]).format(
+      this.profitFrom.times[1] = moment(this.profitFrom.times[1]).format(
         "YYYY-MM-DD HH:mm:ss"
       );
-      var data = this.profitFrom;
-      this.spanArr = [];
-      this.contactDot = 0;
-      this.sIdx = 0;
+      var data = {
+        beginTime: this.profitFrom.times[0],
+        endTime: this.profitFrom.times[1]
+      };
       getStatistics(data).then(res => {
         if (res.code === 0) {
-          if (res.data != null && res.data.length > 0) {
-            this.list = res.data;
-            this.list.forEach((row, index) => {
-              row.index = index;
-              if (index === 0) {
-                this.spanArr.push(1);
-              } else {
-                if (row.channelName === this.list[index - 1].channelName) {
-                  this.spanArr[this.contactDot] += 1;
-                  this.spanArr.push(0);
-                } else {
-                  this.spanArr.push(1);
-                  this.contactDot = index;
-                  this.sIdx = this.sIdx + 1;
-                }
-              }
-            });
+          if (res.items.length > 0) {
+            this.list = res.items;
             this.loading = false;
           } else {
-            this.list = res.data;
+            this.list = [];
             this.loading = false;
-            this.emptytext = "没有条件的数据";
+            this.emptytext = "暂无数据";
           }
         }
       });
     },
+    //获取寄售用户分析
     fetchUData() {
       this.uloading = true;
-      this.profitFrom.beginTime = moment(this.profitFrom.times[0]).format(
+      this.profitFrom.times[0] = moment(this.profitFrom.times[0]).format(
         "YYYY-MM-DD HH:mm:ss"
       );
-      this.profitFrom.endTime = moment(this.profitFrom.times[1]).format(
+      this.profitFrom.times[1] = moment(this.profitFrom.times[1]).format(
         "YYYY-MM-DD HH:mm:ss"
       );
-      var data = this.profitFrom;
-      this.spanArr = [];
-      this.contactDot = 0;
-      this.sIdx = 0;
+      var data = {
+        beginTime: this.profitFrom.times[0],
+        endTime: this.profitFrom.times[1]
+      };
       getUStatistics(data).then(res => {
         if (res.code === 0) {
-          if (res.data != null && res.data.length > 0) {
-            this.uList = res.data;
-            this.uList.forEach((row, index) => {
-              row.index = index;
-              if (index === 0) {
-                this.spanArr.push(1);
-              } else {
-                if (row.realName === this.uList[index - 1].realName) {
-                  this.spanArr[this.contactDot] += 1;
-                  this.spanArr.push(0);
-                } else {
-                  this.spanArr.push(1);
-                  this.contactDot = index;
-                  this.sIdx = this.sIdx + 1;
-                }
-              }
-            });
+          if (res.items.length > 0) {
+            this.uList = res.items;
             this.uloading = false;
           } else {
-            this.uList = res.data;
+            this.uList = [];
             this.uloading = false;
-            this.emptytext = "没有条件的数据";
+            this.emptytext = "暂无数据";
           }
         }
       });
     },
-    handleClick(tab, event) {
-      if (this.activeName == "facevalue") this.fetchData();
-      else if (this.activeName == "user") this.fetchUData();
-    },
+    //合计
     getSummaries(param) {
       const { columns, data } = param;
       const sums = [];
@@ -221,38 +184,20 @@ export default {
         const values = data.map(item => Number(item[column.property]));
         if (!values.every(value => isNaN(value))) {
           sums[index] = values.reduce((prev, curr) => {
-            return prev + curr;
+            const value = Number(curr);
+            if (!isNaN(value)) {
+              return prev + curr;
+            } else {
+              return prev;
+            }
           }, 0);
           sums[index] = parseFloat(sums[index].toFixed(4));
         } else {
-          sums[index] = "";
+          sums[index] = "-";
         }
       });
+
       return sums;
-    },
-    // 设置表格第一行的颜色
-    getRowClass({ row, column, rowIndex, columnIndex }) {
-      if (rowIndex === 0) {
-        return "background:#EFEFEF";
-      } else {
-        return "";
-      }
-    },
-    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
-      if (columnIndex == 0) {
-        const _row = this.spanArr[rowIndex];
-        const _col = _row > 0 ? 1 : 0;
-        return {
-          rowspan: _row,
-          colspan: _col
-        };
-      }
-    },
-    searchprofitFrom() {
-      this.fetchData();
-    },
-    searchUprofitFrom() {
-      this.fetchUData();
     }
   }
 };

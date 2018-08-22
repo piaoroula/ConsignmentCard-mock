@@ -17,7 +17,7 @@
             </el-select>
           </el-form-item>
           <el-form-item label="卡面值" prop='FaceValue'>
-            <el-select v-model="consignment.FaceValue" clearable placeholder="请先选择寄售通道">
+            <el-select v-model="consignment.FaceValue" clearable placeholder="请先选择寄售通道" no-data-text='无数据'>
               <el-option v-for="FaceValues in FaceValueList" :key="FaceValues.id" :label="FaceValues.faceValue" :value="FaceValues.id">
               </el-option>
             </el-select>
@@ -66,14 +66,14 @@
 
 <script>
 import { mapGetters } from "vuex";
-// import {
-//   GetChannels,
-//   getFaceValues,
-//   submitConsignment,
-//   submitautoConsignment
-// } from '@/api/card'
-// import VeeValidate, { Validator } from "vee-validate";
-// import { cardsConvert } from "@/utils/format";
+import {
+  GetChannels,
+  getFaceValues,
+  submitConsignment
+  //   submitautoConsignment
+} from "@/api/card";
+import VeeValidate, { Validator } from "vee-validate";
+import { cardsConvert } from "@/utils/format";
 export default {
   name: "consignment",
   data() {
@@ -167,7 +167,6 @@ export default {
     // this.getFaceValueList();
   },
   methods: {
-    handleClick(tab, event) {},
     // 获取寄售通道列表
     getChannelList() {
       GetChannels().then(res => {
@@ -178,165 +177,131 @@ export default {
         }
       });
     },
-    // 通过获取选择的寄售通道的id值，获取卡面值列表
+    //获取卡面值，通过寄售通道的id获取对应的卡面值
     selectChannels(vId) {
-      this.consignment.FaceValue = "";
-      getFaceValues(vId).then(res => {
+      getFaceValues({ cid: vId }).then(res => {
         if (res.code === 0) {
-          this.FaceValueList = res.data;
+          if (res.data != undefined) {
+            this.FaceValueList = res.data;
+          } else {
+            this.FaceValueList = [];
+          }
         } else {
-          this.$message.error("获取卡面值列表失败");
+          this.$message.error(res.msg);
         }
       });
     },
+    //普通寄售卡密列表转换
+    consignmentBlur() {
+      var cardsArry = [];
+      cardsArry = cardsConvert(this.consignment.Cards);
+      if (cardsArry != null) {
+        this.cardCount = cardsArry.length;
+        this.consignment.Cards = cardsArry.join("\n");
+      }
+    },
 
-    // 普通寄售提交
-    onSubmitConsignment(consignmentrules) {
+    //普通寄售提交
+    onSubmitConsignment() {
       this.submitConsignmentLoading = true;
       this.$refs.consignment.validate(valid => {
         if (valid) {
           if (this.cardCount >= 1000) {
-            this.$message({
-              message: "一次最大允许寄售1000张卡，请修改后重新寄售",
-              type: "warning"
-            });
-            return;
-          }
-          this.$confirm(
-            "检测到" + this.cardCount + "张卡密信息，是否要提交寄售？",
-            "提示",
-            {
-              confirmButtonText: "提交寄售",
-              cancelButtonText: "取消",
-              type: "info"
-            }
-          )
-            .then(() => {
-              submitConsignment({
-                faceValueId: this.consignment.FaceValue,
-                channelId: this.consignment.Channel,
-                cards: this.consignment.Cards
-              }).then(res => {
-                if (res.code === 0) {
-                  if (res.data) {
-                    this.$alert(res.msg, "提示", {
-                      confirmButtonText: "查看失败原因",
-                      callback: action => {
-                        this.errorVisible = true;
-                        this.errorList = res;
-                      }
-                    });
+            this.$message.error("一次最大允许寄售1000张卡，请修改后重新寄售");
+          } else {
+            this.$confirm(
+              "检测到" + this.cardCount + "张卡密信息, 是否要提交寄售?",
+              "提示",
+              {
+                confirmButtonText: "提交寄售",
+                cancelButtonText: "取消",
+                type: "warning"
+              }
+            )
+              .then(() => {
+                var data = {
+                  Channel: this.consignment.Channel,
+                  FaceValue: this.consignment.FaceValue,
+                  Cards: cardsConvert(this.consignment.Cards)
+                };
+                submitConsignment(data).then(res => {
+                  if (res.code === 0) {
+                    this.submitConsignmentLoading = false;
+                    this.consignment.Cards = "";
+                    this.$message.success(res.msg + this.cardCount + "张卡");
                   } else {
-                    this.$message({
-                      message:
-                        "寄售全部提交成功，共计：" + this.cardCount + "张",
-                      type: "success"
-                    });
+                    this.submitConsignmentLoading = false;
+                    this.$message.error(res.msg);
                   }
-                  this.consignment.Cards = "";
-                } else if (res.code === 2) {
-                  this.$alert(res.msg, "提示", {
-                    confirmButtonText: "查看失败原因",
-                    callback: action => {
-                      this.errorVisible = true;
-                      this.errorList = res.data;
-                    }
-                  });
-                }
-                this.submitConsignmentLoading = false;
+                });
+              })
+              .catch(() => {
+                this.$message({
+                  type: "info",
+                  message: "已取消寄售"
+                });
               });
-            })
-            .catch(() => {
-              this.submitConsignmentLoading = false;
-              return false;
-            });
+          }
         } else {
-          console.log("error submit!!");
           this.submitConsignmentLoading = false;
           return false;
         }
       });
     },
-    // 快速寄售提交
-    onSubmitautoConsignment(consignmentrules) {
+    //快速寄售卡密列表转换
+    autoconsignmentBlur() {
+      var cardsArry = [];
+      cardsArry = cardsConvert(this.autoform.Cards);
+      if (cardsArry != null) {
+        this.cardCount = cardsArry.length;
+        this.autoform.Cards = cardsArry.join("\n");
+      }
+    },
+    //快速提交
+    onSubmitautoConsignment() {
       this.submitautoConsignmentLoading = true;
       this.$refs.autoform.validate(valid => {
         if (valid) {
           if (this.cardCount >= 1000) {
-            this.$message({
-              message: "一次最大允许寄售1000张卡，请修改后重新寄售",
-              type: "warning"
-            });
-            return;
-          }
-          this.$confirm(
-            "检测到" + this.cardCount + "张卡密信息，是否要提交寄售？",
-            "提示",
-            {
-              confirmButtonText: "提交寄售",
-              cancelButtonText: "取消",
-              type: "info"
-            }
-          )
-            .then(() => {
-              submitautoConsignment(this.autoform).then(res => {
-                if (res.code === 0) {
-                  if (res.data) {
-                    this.$alert(res.msg, "提示", {
-                      confirmButtonText: "查看失败原因",
-                      callback: action => {
-                        this.errorVisible = true;
-                        this.errorList = res.data;
-                      }
-                    });
+            this.$message.error("一次最大允许寄售1000张卡，请修改后重新寄售");
+          } else {
+            this.$confirm(
+              "检测到" + this.cardCount + "张卡密信息, 是否要提交寄售?",
+              "提示",
+              {
+                confirmButtonText: "提交寄售",
+                cancelButtonText: "取消",
+                type: "warning"
+              }
+            )
+              .then(() => {
+                var data = {
+                  FaceValue: this.autoform.FaceValue,
+                  Cards: cardsConvert(this.autoform.Cards)
+                };
+                submitConsignment(data).then(res => {
+                  if (res.code === 0) {
+                    this.submitautoConsignmentLoading = false;
+                    this.autoform.Cards = "";
+                    this.$message.success(res.msg + this.cardCount + "张卡");
                   } else {
-                    this.$message({
-                      message:
-                        "寄售全部提交成功，共计：" + this.cardCount + "张",
-                      type: "success"
-                    });
-                    this.autoform.cards = "";
+                    this.submitautoConsignmentLoading = false;
+                    this.$message.error(res.msg);
                   }
-                } else if (res.code === 2) {
-                  this.$alert(res.msg, "提示", {
-                    confirmButtonText: "查看失败原因",
-                    callback: action => {
-                      this.errorVisible = true;
-                      this.errorList = res.data;
-                    }
-                  });
-                }
-                this.submitautoConsignmentLoading = false;
+                });
+              })
+              .catch(() => {
+                this.$message({
+                  type: "info",
+                  message: "已取消寄售"
+                });
               });
-            })
-            .catch(() => {
-              this.submitautoConsignmentLoading = false;
-              return false;
-            });
+          }
         } else {
           this.submitautoConsignmentLoading = false;
           return false;
         }
       });
-    },
-    resetForm(consignment) {
-      this.consignment = {};
-      this.autoform.facevalue = 100;
-      this.autoform.Cards = null;
-    },
-    consignmentBlur() {
-      var newDataArr = cardsConvert(this.consignment.Cards);
-      if (newDataArr !== null) {
-        this.cardCount = newDataArr.length;
-        this.consignment.Cards = newDataArr.join("\n");
-      }
-    },
-    autoconsignmentBlur() {
-      var newDataArr = cardsConvert(this.autoform.Cards);
-      if (newDataArr !== null) {
-        this.cardCount = newDataArr.length;
-        this.autoform.Cards = newDataArr.join("\n");
-      }
     }
   }
 };
