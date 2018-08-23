@@ -257,7 +257,7 @@ export default {
         this.autoform.Cards = cardsArry.join("\n");
       }
     },
-    //快速提交快速提交快速提交快速提交快速提交快速提交快速提交
+    //快速提交
     onSubmitautoConsignment() {
       this.submitautoConsignmentLoading = true;
       this.$refs.autoform.validate(valid => {
