@@ -1,8 +1,8 @@
 <template>
   <div class="dashboard-container background record">
     <el-form :inline="true" :model="recordSearchForm" class="recordSearch-form-inline">
-      <el-form-item label="寄售通道">
-        <el-select v-model="recordSearchForm.ChannelId" filterable clearable placeholder="请选择寄售通道" @change='selectChannels'>
+      <el-form-item label="卡类型">
+        <el-select v-model="recordSearchForm.ChannelId" filterable clearable placeholder="请选择卡类型" @change='selectChannels'>
           <el-option v-for="channel in ChannelList" :key="channel.id" :label="channel.name" :value="channel.id">
             <span style="float: left">{{ channel.name }}</span>
             <span style="float: right; color: #8492a6; font-size: 13px">{{ channel.buyRate }}</span>
@@ -10,12 +10,12 @@
         </el-select>
       </el-form-item>
       <el-form-item>
-        <el-select v-model="recordSearchForm.FaceValueId" clearable placeholder="请先选择卡面值">
+        <el-select v-model="recordSearchForm.FaceValueId" clearable placeholder="请先选择卡类型">
           <el-option v-for='FaceValueIds in FaceValueList' :value="FaceValueIds.id" :key="FaceValueIds.id" :label="FaceValueIds.faceValue"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="卡状态">
-        <el-select v-model="recordSearchForm.useState" clearable placeholder="请选择卡状态">
+      <el-form-item label="寄售状态">
+        <el-select v-model="recordSearchForm.useState" clearable placeholder="请选择寄售状态">
           <el-option v-for='UseStates in UseStateList' :value="UseStates.id" :key="UseStates.id" :label="UseStates.state"></el-option>
         </el-select>
       </el-form-item>
@@ -53,6 +53,9 @@
       <el-table-column type="selection" width="30"></el-table-column>
       <el-table-column prop='cardNumber' label="卡号" align="center" width="170"> </el-table-column>
       <el-table-column prop='name' label="卡类型" align="center" width="120">
+        <template slot-scope="scope">
+          {{(scope.row.name)}}
+        </template>
       </el-table-column>
       <el-table-column prop='faceValue' label="寄售面值" align="center" width="80">
       </el-table-column>
@@ -91,7 +94,7 @@
 
 <script>
 import { mapGetters } from "vuex";
-// import moment from "moment";
+import moment from "moment";
 import {
   GetChannels,
   getFaceValues,
@@ -145,8 +148,16 @@ export default {
       },
       ChannelList: [
         {
-          id: "",
-          name: ""
+          id: 0,
+          name: "移动充值卡"
+        },
+        {
+          id: 1,
+          name: "联通充值卡"
+        },
+        {
+          id: 2,
+          name: "电信全国充值卡"
         }
       ],
       FaceValueList: [
@@ -198,16 +209,72 @@ export default {
         return "";
       }
     },
-    //获取寄售哦详情列表
+    //获取卡类型
+    getChannelList() {
+      GetChannels().then(res => {
+        if (res.code === 0) {
+          this.ChannelList = res.data;
+        } else {
+          this.$message.error("获取卡类型数据失败");
+        }
+      });
+    },
+    //获取卡面值，通过卡类型的id获取对应的卡面值
+    selectChannels(vId) {
+      let obj = {};
+      obj = this.ChannelList.find(item => {
+        return item.id === vId;
+      });
+      console.log(obj.name);
+      getFaceValues({ cid: vId }).then(res => {
+        if (res.code === 0) {
+          if (res.data != undefined) {
+            this.FaceValueList = res.data;
+          } else {
+            this.FaceValueList = [];
+          }
+        } else {
+          this.$message.error(res.msg);
+        }
+      });
+    },
+    //获取寄售详情列表
     getRecordList() {
       this.loading = true;
-      GetRecords({
-        page: this.recordSearchForm.page,
-        limit: this.recordSearchForm.limit
-      }).then(res => {
+      this.recordSearchForm.times[0] = moment(
+        this.recordSearchForm.times[0]
+      ).format("YYYY-MM-DD HH:mm:ss");
+      this.recordSearchForm.times[1] = moment(
+        this.recordSearchForm.times[1]
+      ).format("YYYY-MM-DD HH:mm:ss");
+      // // //通过卡id对应卡名称
+      // this.ChannelList.find(
+      //   item => item.id === this.recordSearchForm.ChannelId
+      // )["name"];
+      // console.log(
+      //   this.ChannelList.find(
+      //     item => item.id === this.recordSearchForm.ChannelId
+      //   )["name"]
+      // );
+      this.selectChannels();
+      var data = {
+        name: obj.name,
+        beginTime: this.recordSearchForm.times[0],
+        endTime: this.recordSearchForm.times[1],
+        FaceValueId: this.recordSearchForm.FaceValueId,
+        useState: this.recordSearchForm.useState,
+        statisticsState: this.recordSearchForm.statisticsState,
+        CardNumber: this.recordSearchForm.CardNumber,
+        limit: this.recordSearchForm.limit,
+        page: this.recordSearchForm.page
+      };
+      GetRecords(data).then(res => {
         if (res.code == 0) {
           if (res.total > 0) {
             this.channelData = res.items;
+            this.channelData.forEach(item => {
+              item.addTime = moment(item.addTime).format("YYYY-MM-DD HH:mm:ss");
+            });
             this.total = res.total;
             this.loading = false;
           } else {
@@ -217,18 +284,12 @@ export default {
             this.emptytext = "暂无数据";
           }
         }
-        console.log(res);
       });
     },
-    //获取寄售通道
-    getChannelList() {
-      GetChannels().then(res => {
-        if (res.code === 0) {
-          this.ChannelList = res.data;
-        } else {
-          this.$message.error("获取寄售通道数据失败");
-        }
-      });
+
+    //搜索
+    searchChannelData() {
+      this.getRecordList();
     },
     // 分页
     handleSizeChange(val) {

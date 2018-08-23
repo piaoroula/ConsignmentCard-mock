@@ -2,16 +2,25 @@ import Mock from 'mockjs'
 import { param2Obj, isvalidateCards } from '@/utils'
 let channelList = [] // 获取卡类型
 let faceValuesData = []// 获取卡面值
-const count = 5
+const count = 3
 var data
-
-for (var i = 0; i < count; i++) {
-  channelList.push(Mock.mock({
-    'id': i,//编号
-    'buyRate|1-100': 100,
-    'name|1': ['移动充值卡', '联通充值卡', '电信全国充值卡'],
-  }))
-}
+channelList.push(
+  {
+    id: 0,
+    name: "移动充值卡",
+    buyRate: 20,
+  },
+  {
+    id: 1,
+    name: "联通充值卡",
+    buyRate: 30,
+  },
+  {
+    id: 2,
+    name: "电信全国充值卡",
+    buyRate: 40,
+  }
+)
 for (var i = 0; i < count; i++) {
   faceValuesData.push(Mock.mock({
     'id': i,//编号
@@ -98,14 +107,24 @@ export default {
     //   }
     // }
     // return data
+    var item = [];
+    // var reason, row, cardNumber;
+    for (var i = 0; i < Cards.length; i++) {
+      item.push({
+        'row': i,
+        'cardNumber': Cards[i],
+        'reason': "通道推断失败"
+      })
+    }
     if (facevalue != undefined && Cards != undefined) {
       data = {
-        code: 0,
-        msg: '寄售成功'
+        code: 2,
+        msg: '本次提交的所有卡密均无法寄售',
+        item
       }
     } else {
       data = {
-        code: 1,
+        code: 3,
         msg: '无效的参数'
       }
     }

@@ -144,13 +144,13 @@ export const asyncRouterMap = [
       icon: 'chart'
     },
     children: [
-      { path: 'cards', component: () => import('@/views/card/cards'), name: 'cards', meta: { title: 'cards', noCache: true } },
-      { path: 'channel', component: () => import('@/views/card/channel'), name: 'channel', meta: { title: 'channel', noCache: true } },
-      { path: 'channels', component: () => import('@/views/card/channels'), name: 'channels', meta: { title: 'channels', noCache: true } },
       { path: 'consignment', component: () => import('@/views/card/consignment'), name: 'consignment', meta: { title: 'consignment', noCache: true } },
-      { path: 'consumption', component: () => import('@/views/card/consumption'), name: 'consumption', meta: { title: 'consumption', noCache: true } },
+      { path: 'channel', component: () => import('@/views/card/channel'), name: 'channel', meta: { title: 'channel', noCache: true } },
       { path: 'record', component: () => import('@/views/card/record'), name: 'record', meta: { title: 'record', noCache: true } },
       { path: 'statistics', component: () => import('@/views/card/statistics'), name: 'statistics', meta: { title: 'statistics', noCache: true } },
+      { path: 'channels', component: () => import('@/views/card/channels'), name: 'channels', meta: { title: 'channels', noCache: true } },
+      { path: 'consumption', component: () => import('@/views/card/consumption'), name: 'consumption', meta: { title: 'consumption', noCache: true } },
+      { path: 'cards', component: () => import('@/views/card/cards'), name: 'cards', meta: { title: 'cards', noCache: true } },
     ]
   },
 

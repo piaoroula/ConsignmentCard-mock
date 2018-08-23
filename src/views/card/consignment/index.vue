@@ -69,8 +69,8 @@ import { mapGetters } from "vuex";
 import {
   GetChannels,
   getFaceValues,
-  submitConsignment
-  //   submitautoConsignment
+  submitConsignment,
+  submitautoConsignment
 } from "@/api/card";
 import VeeValidate, { Validator } from "vee-validate";
 import { cardsConvert } from "@/utils/format";
@@ -262,46 +262,60 @@ export default {
       this.submitautoConsignmentLoading = true;
       this.$refs.autoform.validate(valid => {
         if (valid) {
-          if (this.cardCount >= 1000) {
-            this.$message.error("一次最大允许寄售1000张卡，请修改后重新寄售");
-          } else {
-            this.$confirm(
-              "检测到" + this.cardCount + "张卡密信息, 是否要提交寄售?",
-              "提示",
-              {
-                confirmButtonText: "提交寄售",
-                cancelButtonText: "取消",
-                type: "warning"
-              }
-            )
-              .then(() => {
-                var data = {
-                  FaceValue: this.autoform.FaceValue,
-                  Cards: cardsConvert(this.autoform.Cards)
-                };
-                submitConsignment(data).then(res => {
-                  if (res.code === 0) {
+          this.$confirm(
+            "检测到" + this.cardCount + "张卡密信息, 是否要提交寄售?",
+            "提示",
+            {
+              confirmButtonText: "提交寄售",
+              cancelButtonText: "取消",
+              type: "warning"
+            }
+          )
+            .then(() => {
+              var data = {
+                facevalue: this.autoform.facevalue,
+                Cards: cardsConvert(this.autoform.Cards)
+              };
+              submitautoConsignment(data).then(res => {
+                console.log(res);
+                if (res.code === 2) {
+                  if (res.item.length > 0) {
                     this.submitautoConsignmentLoading = false;
-                    this.autoform.Cards = "";
-                    this.$message.success(res.msg + this.cardCount + "张卡");
-                  } else {
-                    this.submitautoConsignmentLoading = false;
-                    this.$message.error(res.msg);
+                    this.$confirm(res.msg, "提示", {
+                      confirmButtonText: "查看失败原因",
+                      type: "warning"
+                    }).then(() => {
+                      this.errorList = res.item;
+                      this.errorVisible = true;
+                    });
                   }
-                });
-              })
-              .catch(() => {
-                this.$message({
-                  type: "info",
-                  message: "已取消寄售"
-                });
+                } else if (res.code === 3) {
+                  this.submitautoConsignmentLoading = false;
+                  this.$message.error(res.msg);
+                }
               });
-          }
+            })
+            .catch(() => {
+              this.$message({
+                type: "info",
+                message: "已取消寄售"
+              });
+            });
         } else {
           this.submitautoConsignmentLoading = false;
           return false;
         }
       });
+    },
+    //重置普通寄售
+    resetForm(consignment) {
+      this.$refs.consignment.resetFields();
+      this.$message.success("重置成功");
+    },
+    //重置快速寄售
+    resetForm(autoform) {
+      this.$refs.autoform.resetFields();
+      this.$message.success("重置成功");
     }
   }
 };
