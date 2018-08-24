@@ -21,14 +21,26 @@ channelList.push(
     buyRate: 40,
   }
 )
-for (var i = 0; i < count; i++) {
-  faceValuesData.push(Mock.mock({
-    'id': i,//编号
-    'consignPrice': '@integer(60, 100)',
-    'faceValue': '@integer(60, 100)',
-    'state|1': [true, false],
-  }))
-}
+faceValuesData.push(
+  {
+    id: 10,
+    consignPrice: 19.2,
+    faceValue: 20,
+    state: true
+  },
+  {
+    id: 11,
+    consignPrice: 12,
+    faceValue: 30,
+    state: false
+  },
+  {
+    id: 12,
+    consignPrice: 18,
+    faceValue: 40,
+    state: false
+  }
+)
 export default {
   // 获取卡类型
   getChannelList: config => {

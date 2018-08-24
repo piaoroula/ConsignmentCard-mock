@@ -49,7 +49,7 @@ Mock.mock(/\/api\/Channel\/Index/, 'get', channelAPI.getchannelData)
 
 //通道管理
 Mock.mock(/\/api\/Manage\/GetChannelsPage/, 'get', channelsAPI.getchannels)
-
+Mock.mock(/\/api\/Manage\/UpdateChannelState/, 'post', channelsAPI.changeChannelState)
 
 //我要寄售
 Mock.mock(/\/api\/Channel\/GetChannels/, 'get', consignmentAPI.getChannelList) //获取寄售通道列表
@@ -64,6 +64,7 @@ Mock.mock(/\/api\/manage\/listConsumptionAll/, 'get', consumptionAPI.getconsumpt
 
 //寄售详情
 Mock.mock(/\/api\/Card\/GetRecords/, 'post', recordAPI.getrecordData)
+Mock.mock(/\/api\/Card\/GetStatistics/, 'post', recordAPI.getCountData)
 
 
 //寄售汇总

@@ -1,9 +1,9 @@
 <template>
   <div class="dashboard-container background record">
-    <el-form :inline="true" :model="recordSearchForm" class="recordSearch-form-inline">
+    <el-form :inline="true" :model="recordSearchForm" class="recordSearch-form-inline" ref="recordSearchForm">
       <el-form-item label="卡类型">
         <el-select v-model="recordSearchForm.ChannelId" filterable clearable placeholder="请选择卡类型" @change='selectChannels'>
-          <el-option v-for="channel in ChannelList" :key="channel.id" :label="channel.name" :value="channel.id">
+          <el-option v-for="channel in ChannelList" :key="channel.id" :label="channel.name" :value="channel.name">
             <span style="float: left">{{ channel.name }}</span>
             <span style="float: right; color: #8492a6; font-size: 13px">{{ channel.buyRate }}</span>
           </el-option>
@@ -11,7 +11,7 @@
       </el-form-item>
       <el-form-item>
         <el-select v-model="recordSearchForm.FaceValueId" clearable placeholder="请先选择卡类型">
-          <el-option v-for='FaceValueIds in FaceValueList' :value="FaceValueIds.id" :key="FaceValueIds.id" :label="FaceValueIds.faceValue"></el-option>
+          <el-option v-for='FaceValueIds in FaceValueList' :value="FaceValueIds.faceValue" :key="FaceValueIds.id" :label="FaceValueIds.faceValue"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="寄售状态">
@@ -29,7 +29,7 @@
       <el-form-item>
         <el-button type="primary" @click="searchChannelData">查询</el-button>
         <el-button type="success" @click="reportExcel">导出Excel</el-button>
-        <el-button @click="resetRecordSearch">重置</el-button>
+        <el-button @click="resetRecordSearch(recordSearchForm)">重置</el-button>
       </el-form-item>
     </el-form>
     <el-form :inline="true" :model="numbers" class="recordSearch-form-inline showCount-form-inline">
@@ -66,10 +66,12 @@
       <el-table-column prop='useState' label="寄售状态" align="center" width="80">
         <template slot-scope='scope'>
           <el-tag v-if="scope.row.useState==0" v-model="scope.row.useState" type='info'>待处理</el-tag>
+          <el-tag v-if="scope.row.useState==1" v-model="scope.row.useState">已取出</el-tag>
           <el-tag v-if="scope.row.useState==2" v-model="scope.row.useState">处理中</el-tag>
           <el-tag v-if="scope.row.useState==3" v-model="scope.row.useState" type='success'>成功</el-tag>
           <el-tag v-if="scope.row.useState==4" v-model="scope.row.useState" type='danger'>失败</el-tag>
           <el-tag v-if="scope.row.useState==5" v-model="scope.row.useState" type='danger'>可疑</el-tag>
+          <el-tag v-if="scope.row.useState==6" v-model="scope.row.useState" type='danger'>可疑核查中</el-tag>
         </template>
       </el-table-column>
       <el-table-column label="耗时" align="center" width="80">
@@ -95,6 +97,7 @@
 <script>
 import { mapGetters } from "vuex";
 import moment from "moment";
+import { parseTime } from "@/utils";
 import {
   GetChannels,
   getFaceValues,
@@ -129,7 +132,9 @@ export default {
           remark: ""
         }
       ],
-      numbers: {},
+      numbers: {
+        successCount: 0
+      },
       multipleSelection: [],
       total: 0,
       currentPage: 1,
@@ -197,7 +202,6 @@ export default {
     // this.resetRecordSearch.CardNumber = this.$route.params.cardNumber;
     this.getChannelList();
     this.getRecordList();
-    // this.statistics();
   },
 
   methods: {
@@ -220,13 +224,13 @@ export default {
       });
     },
     //获取卡面值，通过卡类型的id获取对应的卡面值
-    selectChannels(vId) {
+    selectChannels(vName) {
+      // 通过卡name对应卡ID
       let obj = {};
       obj = this.ChannelList.find(item => {
-        return item.id === vId;
+        return item.name === vName;
       });
-      console.log(obj.name);
-      getFaceValues({ cid: vId }).then(res => {
+      getFaceValues({ cid: obj.id }).then(res => {
         if (res.code === 0) {
           if (res.data != undefined) {
             this.FaceValueList = res.data;
@@ -247,18 +251,8 @@ export default {
       this.recordSearchForm.times[1] = moment(
         this.recordSearchForm.times[1]
       ).format("YYYY-MM-DD HH:mm:ss");
-      // // //通过卡id对应卡名称
-      // this.ChannelList.find(
-      //   item => item.id === this.recordSearchForm.ChannelId
-      // )["name"];
-      // console.log(
-      //   this.ChannelList.find(
-      //     item => item.id === this.recordSearchForm.ChannelId
-      //   )["name"]
-      // );
-      this.selectChannels();
       var data = {
-        name: obj.name,
+        name: this.recordSearchForm.ChannelId,
         beginTime: this.recordSearchForm.times[0],
         endTime: this.recordSearchForm.times[1],
         FaceValueId: this.recordSearchForm.FaceValueId,
@@ -271,10 +265,13 @@ export default {
       GetRecords(data).then(res => {
         if (res.code == 0) {
           if (res.total > 0) {
+            console.log(res.data);
             this.channelData = res.items;
+            this.numbers = res.data;
             this.channelData.forEach(item => {
               item.addTime = moment(item.addTime).format("YYYY-MM-DD HH:mm:ss");
             });
+
             this.total = res.total;
             this.loading = false;
           } else {
@@ -287,9 +284,100 @@ export default {
       });
     },
 
-    //搜索
+    //查询
     searchChannelData() {
       this.getRecordList();
+    },
+    //导出excel，功能还未完善
+    reportExcel() {
+      this.loading = true;
+      import("@/vendor/Export2Excel").then(excel => {
+        const tHeader = [
+          "卡号",
+          "卡类型",
+          "寄售面值",
+          "结算面值",
+          "结算金额",
+          "寄售状态",
+          "耗时",
+          "寄售时间",
+          "完成时间",
+          "备注"
+        ];
+        const filterVal = ["name", "faceValue", "addTime", "CardNumber"];
+        const list = this.channelData;
+        const data = this.formatJson(filterVal, list);
+        excel.export_json_to_excel(tHeader, data, "table-list");
+        this.loading = false;
+      });
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v =>
+        filterVal.map(j => {
+          if (j === "addTime") {
+            return parseTime(v[j]);
+          } else {
+            return v[j];
+          }
+        })
+      );
+    },
+
+    //重置
+    resetRecordSearch(recordSearchForm) {
+      this.recordSearchForm = {};
+      this.recordSearchForm.times = [
+        new Date().setHours(0, 0, 0),
+        new Date().setHours(0, 0, 0) + 86398999
+      ];
+      this.$message.success("重置成功");
+    },
+
+    // //计算面值不符，3=>成功，4=>失败,2=>处理中的张数
+    // getCount() {
+    //   this.recordSearchForm.times[0] = moment(
+    //     this.recordSearchForm.times[0]
+    //   ).format("YYYY-MM-DD HH:mm:ss");
+    //   this.recordSearchForm.times[1] = moment(
+    //     this.recordSearchForm.times[1]
+    //   ).format("YYYY-MM-DD HH:mm:ss");
+    //   var data = {
+    //     name: this.recordSearchForm.ChannelId,
+    //     beginTime: this.recordSearchForm.times[0],
+    //     endTime: this.recordSearchForm.times[1],
+    //     FaceValueId: this.recordSearchForm.FaceValueId,
+    //     useState: this.recordSearchForm.useState,
+    //     statisticsState: this.recordSearchForm.statisticsState,
+    //     CardNumber: this.recordSearchForm.CardNumber,
+    //     limit: this.recordSearchForm.limit,
+    //     page: this.recordSearchForm.page
+    //   };
+    //   getStatistics(data).then(res => {
+    //     if (res.code == 0) {
+    //       this.numbers = res.data;
+    //       this.total = res.total;
+    //     }
+    //   });
+    // },
+    //通过指定 Table 组件的 row-class-name 属性来为 Table 中的某一行添加 class，表明该行处于某种状态
+    tableRowClassName({ row, rowIndex }) {
+      if (row.useState === 4) {
+        return "failed-row";
+      }
+      return "";
+    },
+    //重新寄售
+    batcheditCardState(rows) {
+      if (rows) {
+        rows.forEach(row => {
+          this.$refs.multipleTable.toggleRowSelection(row);
+        });
+      } else {
+        this.$refs.multipleTable.clearSelection();
+      }
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
     },
     // 分页
     handleSizeChange(val) {

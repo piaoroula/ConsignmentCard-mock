@@ -9,6 +9,7 @@ export function GetChannels() {
   })
 }
 
+//获取面值不符，3=>成功，4=>失败,2=>处理中的张数的数据
 export function getStatistics(data) {
   return request({
     url: '/api/Card/GetStatistics',

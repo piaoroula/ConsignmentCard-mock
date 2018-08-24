@@ -7,7 +7,7 @@
       <el-table :data='tableData' v-loading="loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :empty-text="emptytext" border style='width: 100%'>
         <el-table-column prop='id' align="center" label='编号' width='80px'></el-table-column>
         <el-table-column prop='name' align="center" label='通道名称'> </el-table-column>
-        <el-table-column prop='private' align="center" label='私有'> </el-table-column>
+        <el-table-column prop='privates' align="center" label='私有'> </el-table-column>
         <el-table-column prop="buyRate" align="center" label="费率"></el-table-column>
         <el-table-column label='状态' align="center" width='140px'>
           <template slot-scope='scope'>
@@ -56,7 +56,7 @@
             <el-input v-model="formInfo.buyRate" placeholder="请输入收购比率"></el-input>
           </el-form-item>
           <el-form-item label="私有">
-            <el-radio-group v-model="formInfo.private">
+            <el-radio-group v-model="formInfo.privates">
               <el-radio :label="true">是</el-radio>
               <el-radio :label="false">否</el-radio>
             </el-radio-group>
@@ -137,13 +137,13 @@ import Kanban from "@/components/Kanban";
 import DndList from "@/components/DndList";
 import draggable from "vuedraggable";
 import {
-  getChannelsPage
-  // addChannel,
-  // updateChannelState,
-  // updateChannelRate,
-  // getFaceValueM,
-  // updateFacevalueState,
-  // addfaceValue
+  getChannelsPage,
+  addChannel,
+  updateChannelState,
+  updateChannelRate,
+  getFaceValueM,
+  updateFacevalueState,
+  addfaceValue
 } from "@/api/mChannel";
 // import {
 //   listConsumptionFaceValue,
@@ -180,7 +180,7 @@ export default {
       formInfo: {
         id: null,
         name: null,
-        private: null,
+        privates: null,
         buyRate: null,
         state: null
       },
@@ -223,7 +223,21 @@ export default {
             this.emptytext = "暂无数据";
           }
         }
-        console.log(res);
+      });
+    },
+    //新增通道
+    onSubmit() {
+      this.channelVisible = true;
+    },
+    //修改状态
+    editChannelState(row, index) {
+      console.log(row);
+      updateChannelState({ id: index.id, state: index.state }).then(res => {
+        if (res.code === 0) {
+          this.$message.success(res.msg);
+        } else {
+          this.$message.success(res.msg);
+        }
       });
     },
     //每页
