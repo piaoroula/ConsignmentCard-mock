@@ -9,7 +9,7 @@ for (var i = 0; i < count; i++) {
     'userName|1': ['张三', '李四', '王五'],
     'realName|1': ['张三', '李四', '王五'],
     'name|1': ['移动充值卡', '联通充值卡', '电信全国充值卡'],
-    'consumptionName': '某某',
+    'consumptionName|1': ['渠道1', '渠道2', '渠道3'],
     'faceValue': '@integer(60, 100)',
     'settlementFaceValue': '@integer(60, 100)',
     'settlementAmount': '@integer(60, 100)',
@@ -24,7 +24,7 @@ for (var i = 0; i < count; i++) {
 }
 export default {
   getCardData: config => {
-    const { name, buyRate, faceValueId, useState, cardNumber, beginTime, endTime, userNameOrId, limit = 20, page = 1 } = param2Obj(config.url)
+    const { name, buyRate, faceValueId, useState, cardNumber, beginTime, endTime, userNameOrId, limit = 20, page = 1 } = JSON.parse(config.body)
     let mockList = cardsData.filter(item => {
       if (name && item.name != name) return false
       if (buyRate && item.buyRate != buyRate) return false
@@ -36,15 +36,23 @@ export default {
       if (userNameOrId && item.userNameOrId != userNameOrId) return false
       return true
     })
-
+    //计算寄售总面值，结算总面值，结算总金额
+    var faceValueTotal = 0, settlementFaceValueTotal = 0, settlementAmountTotal = 0
+    mockList.forEach(item => {
+      faceValueTotal += item.faceValue;
+      settlementFaceValueTotal += item.settlementFaceValue
+      settlementAmountTotal += item.settlementAmount
+    })
     const pageList = mockList.filter((item, index) => index < limit * page && index >= limit * (page - 1))
     return {
       code: 0,
       total: mockList.length, //线报总数
       items: pageList,     //每一页显示的数据
+      data: { faceValueTotal, settlementFaceValueTotal, settlementAmountTotal }
     }
 
-  }
+  },
+
 
 
 

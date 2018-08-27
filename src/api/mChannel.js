@@ -7,8 +7,14 @@ export function getChannelsPage(data) {
     data
   })
 }
-
-export function updateChannelRate(data) {
+export function ChannelRate(id) {
+  return request({
+    url: '/api/Manage/ChannelRate',
+    method: 'get',
+    params: { id }
+  })
+}
+export function updateChannelsRate(data) {
   return request({
     url: '/api/Manage/UpdateChannelRate',
     method: 'post',

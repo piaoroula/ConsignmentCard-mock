@@ -39,7 +39,7 @@ Mock.mock(/\/api\/Account\/UpdateCallbackUrl/, 'post', userInfAPI.UpdateCallback
 
 
 //寄售管理
-Mock.mock(/\/api\/Manage\/GetCards/, 'get', carsdAPI.getCardData)
+Mock.mock(/\/api\/Manage\/GetCards/, 'post', carsdAPI.getCardData)
 
 
 //通道列表
@@ -50,13 +50,18 @@ Mock.mock(/\/api\/Channel\/Index/, 'get', channelAPI.getchannelData)
 //通道管理
 Mock.mock(/\/api\/Manage\/GetChannelsPage/, 'get', channelsAPI.getchannels)
 Mock.mock(/\/api\/Manage\/UpdateChannelState/, 'post', channelsAPI.changeChannelState)
+Mock.mock(/\/api\/Manage\/AddChannel/, 'post', channelsAPI.addChannel)
+Mock.mock(/\/api\/Manage\/ChannelRate/, 'get', channelsAPI.getBuyRate)
+Mock.mock(/\/api\/Manage\/UpdateChannelRate/, 'post', channelsAPI.handelBuyRate)
+
 
 //我要寄售
 Mock.mock(/\/api\/Channel\/GetChannels/, 'get', consignmentAPI.getChannelList) //获取寄售通道列表
 Mock.mock(/\/api\/Channel\/GetFaceValues/, 'get', consignmentAPI.getFaceValuesData) //获取卡面值
 Mock.mock(/\/api\/Card\/Consignment/, 'post', consignmentAPI.SubmitConsignment) //普通寄售提交
 Mock.mock(/\/api\/Card\/AutoConsignment/, 'post', consignmentAPI.SubmitQuickConsignment) //快速寄售提交
-
+Mock.mock(/\/api\/Manage\/UpdateFacevalueState/, 'post', consignmentAPI.changeFacevalueState) //修改卡面值状态
+Mock.mock(/\/api\/Manage\/AddfaceValue/, 'post', consignmentAPI.addFacevalue) //新增卡面值
 
 //渠道管理
 Mock.mock(/\/api\/manage\/listConsumptionAll/, 'get', consumptionAPI.getconsumptionData)

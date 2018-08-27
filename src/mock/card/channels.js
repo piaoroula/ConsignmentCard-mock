@@ -8,21 +8,21 @@ channelsData.push(
     id: 0,
     name: "移动充值卡",
     buyRate: 20,
-    privates: '是',
+    privates: true,
     state: true
   },
   {
     id: 1,
     name: "联通充值卡",
     buyRate: 30,
-    privates: '是',
+    privates: true,
     state: true
   },
   {
     id: 2,
     name: "电信全国充值卡",
     buyRate: 40,
-    privates: '否',
+    privates: false,
     state: false
   }
 )
@@ -54,15 +54,86 @@ export default {
     channelsData.forEach(item => {
       idArry.push(item.id)
     })
-    var max2 = idArry.sort(function (a, b) {
+    var maxId = idArry.sort(function (a, b) {
       return b - a;
     })[0];
-    if (name != undefined && buyRate != undefined && privates != undefined) {
-      this.channelsData.push({
-
+    var nameArry = []
+    //过滤重复提交的通道名称
+    channelsData.forEach(item => {
+      nameArry.push(item.name)
+    })
+    if (nameArry.indexOf(name) < 0) {
+      if (name != null && buyRate != null && privates != null) {
+        var addData = {
+          id: maxId + 1,
+          name: name,
+          buyRate: buyRate,
+          privates: privates,
+        }
+        channelsData.splice(0, 0, addData)
+        data = {
+          code: 0,
+          msg: '添加通道成功'
+        }
+        // return true
+      } else {
+        data = {
+          code: 1,
+          msg: '参数错误'
+        }
+      }
+    } else {
+      data = {
+        msg: '已存在此通道，无需再添加'
+      }
+    }
+    return data
+  },
+  //获取费率
+  getBuyRate: config => {
+    const { id } = param2Obj(config.url)
+    channelsData.some(item => {
+      if (item.id === JSON.parse(id)) {
+        data = {
+          code: 0,
+          item: item,
+          msg: '获取成功'
+        }
+        return true
+      } else {
+        data = {
+          code: 1,
+          msg: '参数错误'
+        }
+        return false
+      }
+    })
+    return data
+  },
+  //修改费率
+  handelBuyRate: config => {
+    const { id, buyRate } = JSON.parse(config.body)
+    if (buyRate != "") {
+      channelsData.some(k => {
+        if (k.id === id) {
+          k.buyRate = buyRate
+          data = {
+            code: 0,
+            msg: '修改成功'
+          }
+          return true
+        } else {
+          data = {
+            code: 1,
+            msg: '参数错误'
+          }
+          return false
+        }
       })
+      return data
     }
   },
+
   //修改状态
   changeChannelState: config => {
     const { id, state } = JSON.parse(config.body)

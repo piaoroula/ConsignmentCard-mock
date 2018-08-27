@@ -4,7 +4,7 @@
       <el-form :inline="true" :model="formInline" class="demo-form-inline">
         <el-form-item label="卡类型">
           <el-select v-model="formInline.channelId" filterable clearable @change="facevalueList" placeholder="请选择卡类型">
-            <el-option v-for="channel in channels" :key="channel.id" :label="channel.name" :value="channel.id">
+            <el-option v-for="channel in channels" :key="channel.id" :label="channel.name" :value="channel.name">
               <span style="float: left">{{ channel.name }}</span>
               <span style="float: right; color: #8492a6; font-size: 13px">{{ channel.buyRate }}</span>
             </el-option>
@@ -199,7 +199,7 @@ import {
   getAllCards
 } from "@/api/mCard";
 import { GetChannels } from "@/api/Card";
-// import moment from "moment";
+import moment from "moment";
 import selecttime from "@/data/selecttime";
 
 export default {
@@ -277,14 +277,25 @@ export default {
     //获取卡列表
     getlist() {
       this.loading = true;
-      getCards({
+      var data = {
+        name: this.formInline.channelId,
+        buyRate: this.formInline.buyRate,
+        faceValueId: this.formInline.faceValueId,
+        useState: this.formInline.useState,
+        beginTime: moment(this.formInline.times[0]).format(
+          "YYYY-MM-DD HH:mm:ss"
+        ),
+        endTime: moment(this.formInline.times[1]).format("YYYY-MM-DD HH:mm:ss"),
         limit: this.formInline.limit,
         page: this.formInline.page
-      }).then(res => {
+      };
+      getCards(data).then(res => {
+        console.log(res);
         if (res.code == 0) {
           if (res.total > 0) {
             this.tableData = res.items;
             this.total = res.total;
+            this.numbers = res.data;
             this.loading = false;
           } else {
             this.loading = false;
@@ -294,6 +305,10 @@ export default {
           }
         }
       });
+    },
+    //搜索
+    onSubmit() {
+      this.getlist();
     },
     //获取寄售通道
     getChannelList() {

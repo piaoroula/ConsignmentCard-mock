@@ -62,6 +62,68 @@ export default {
       msg: '获取卡面值失败',
     }
   },
+  //修改卡面值状态
+  changeFacevalueState: config => {
+    const { id, state } = JSON.parse(config.body)
+    faceValuesData.some(u => {
+      if (u.id === id) {
+        u.state = state
+        data = {
+          code: 0,
+          msg: '修改成功'
+        }
+        return true
+      } else {
+        data = {
+          code: 1,
+          msg: '参数错误'
+        }
+        return false
+      }
+    })
+    return data
+  },
+  //新增卡面值
+  addFacevalue: config => {
+    const { channelId, faceValue } = JSON.parse(config.body)
+    //获取面值列表的最大id
+    //b-a从大到小，a-b从小到大
+    var idArry = []
+    faceValuesData.forEach(item => {
+      idArry.push(item.id)
+    })
+    var maxId = idArry.sort(function (a, b) {
+      return b - a;
+    })[0];
+    var faceValueArry = []
+    //过滤重复提交的面值
+    faceValuesData.forEach(item => {
+      faceValueArry.push(item.faceValue)
+    })
+    if (faceValueArry.indexOf(faceValue) < 0) {
+      if (faceValue != null) {
+        var addData = {
+          id: maxId + 1,
+          faceValue: faceValue,
+        }
+        faceValuesData.splice(0, 0, addData)
+        data = {
+          code: 0,
+          msg: '添加面值成功'
+        }
+        // return true
+      } else {
+        data = {
+          code: 1,
+          msg: '参数错误'
+        }
+      }
+      return data
+    } else {
+      console.log('重复提交')
+    }
+
+  },
   //普通寄售提交
   SubmitConsignment: config => {
     const { Channel, FaceValue, Cards } = JSON.parse(config.body)

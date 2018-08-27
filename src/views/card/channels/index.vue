@@ -7,7 +7,12 @@
       <el-table :data='tableData' v-loading="loading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :empty-text="emptytext" border style='width: 100%'>
         <el-table-column prop='id' align="center" label='编号' width='80px'></el-table-column>
         <el-table-column prop='name' align="center" label='通道名称'> </el-table-column>
-        <el-table-column prop='privates' align="center" label='私有'> </el-table-column>
+        <el-table-column prop='privates' align="center" label='私有'>
+          <template slot-scope="scope">
+            <span v-if='scope.row.privates==true'>是</span>
+            <span v-if='scope.row.privates==false'>否</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="buyRate" align="center" label="费率"></el-table-column>
         <el-table-column label='状态' align="center" width='140px'>
           <template slot-scope='scope'>
@@ -75,7 +80,7 @@
             <el-input v-model="formRate.buyRate" placeholder="请输入收购比率"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="editPrice">提交</el-button>
+            <el-button type="primary" :loading="updateBuyRateLoading" @click="editPrice">提交</el-button>
             <el-button @click="buyRateVisible=false">取消</el-button>
           </el-form-item>
         </el-form>
@@ -140,16 +145,18 @@ import {
   getChannelsPage,
   addChannel,
   updateChannelState,
-  updateChannelRate,
+  ChannelRate,
+  updateChannelsRate,
   getFaceValueM,
   updateFacevalueState,
   addfaceValue
 } from "@/api/mChannel";
-// import {
-//   listConsumptionFaceValue,
-//   updateConsumptionFaceValueOrderBy
-// } from "@/api/mConsumption";
-
+import { getFaceValues } from "@/api/card";
+import {
+  listConsumptionAll,
+  listConsumptionFaceValue,
+  updateConsumptionFaceValueOrderBy
+} from "@/api/mConsumption";
 export default {
   name: "channels",
   components: {
@@ -175,6 +182,7 @@ export default {
       addInfoLoading: false,
       editPriceLoading: false,
       addFacevalueLoading: false,
+      updateBuyRateLoading: false,
       tableData: [],
       facevalueData: [],
       formInfo: {
@@ -229,9 +237,163 @@ export default {
     onSubmit() {
       this.channelVisible = true;
     },
-    //修改状态
+    addInfo() {
+      this.addInfoLoading = true;
+      var data = {
+        name: this.formInfo.name,
+        buyRate: this.formInfo.buyRate,
+        privates: this.formInfo.privates
+      };
+      //判断是否有重复的通道
+      var nameArry = [];
+      this.tableData.forEach(item => {
+        nameArry.push(item.name);
+      });
+      if (nameArry.indexOf(this.formInfo.name) < 0) {
+        if (
+          this.formInfo.name != null &&
+          this.formInfo.buyRate != null &&
+          this.formInfo.privates != null
+        ) {
+          addChannel(data).then(res => {
+            if (res.code === 0) {
+              this.getlist();
+
+              this.$message.success(res.msg);
+              this.channelVisible = false;
+              this.addInfoLoading = false;
+              this.formInfo = {};
+            } else {
+              this.$message.error(res.msg);
+              this.addInfoLoading = false;
+            }
+          });
+        } else {
+          this.addInfoLoading = false;
+          this.$message.error("通道名称/收购比率/私有不能为空");
+        }
+      } else {
+        this.addInfoLoading = false;
+        this.$message.error("已存在" + this.formInfo.name + "通道，无需再添加");
+        this.formInfo.name = null;
+      }
+    },
+    //打开修改费率弹框
+    openPrice(row) {
+      this.buyRateVisible = true;
+      ChannelRate(row.id).then(res => {
+        console.log(res);
+        if (res.code === 0) {
+          this.formRate = row;
+        } else {
+          this.$message.error(res.msg);
+        }
+      });
+    },
+    //修改费率
+    editPrice() {
+      this.updateBuyRateLoading = true;
+      var data = {
+        id: this.formRate.id,
+        buyRate: this.formRate.buyRate
+      };
+      if (this.formRate.buyRate != "") {
+        updateChannelsRate(data).then(res => {
+          console.log(res);
+          if (res.code === 0) {
+            this.$message.success(res.msg);
+            this.buyRateVisible = false;
+            this.updateBuyRateLoading = false;
+          } else {
+            this.$message.error(res.msg);
+            this.updateBuyRateLoading = false;
+          }
+        });
+      } else {
+        this.updateBuyRateLoading = false;
+        this.$message.error("费率不能为空");
+      }
+    },
+    //打开面值管理弹窗
+    getFacevalueList(row) {
+      this.facevalueVisible = true;
+      this.formFace = row;
+      this.getfaceList(row.id);
+    },
+    //获取面值列表
+    getfaceList(id) {
+      getFaceValues(id).then(res => {
+        if (res.code === 0) {
+          if (res.data != undefined) {
+            this.facevalueData = res.data;
+          } else {
+            this.FaceValueList = [];
+            this.emptytext("暂无数据");
+          }
+        } else {
+          this.$message.error(res.msg);
+        }
+      });
+    },
+    //修改面值状态
+    editFaceValueState(index, row) {
+      updateFacevalueState({ id: row.id, state: row.state }).then(res => {
+        if (res.code === 0) {
+          this.$message.success(res.msg);
+        } else {
+          this.$message.error(res.msg);
+        }
+      });
+    },
+    //新增面值
+    addFacevalue() {
+      this.editFacevalueVisible = true;
+      var data = {
+        channelId: this.formFace.id,
+        faceValue: this.formFace.faceValue
+      };
+      var faceValueArry = [];
+      //过滤重复提交的面值
+      this.facevalueData.forEach(item => {
+        faceValueArry.push(item.faceValue);
+      });
+      if (faceValueArry.indexOf(JSON.parse(this.formFace.faceValue)) < 0) {
+        if (this.formFace.faceValue != null) {
+          addfaceValue(data).then(res => {
+            if (res.code === 0) {
+              this.$message.success(res.msg);
+              this.editFacevalueVisible = false;
+              this.getfaceList(this.formFace.id);
+              this.formFace.faceValue = null;
+            } else {
+              this.$message.error(res.msg);
+              this.editFacevalueVisible = false;
+            }
+          });
+        } else {
+          this.$message.error("面值不能为空");
+        }
+      } else {
+        this.$message.error(
+          "面值" + this.formFace.faceValue + "已经存在，不能重复添加"
+        );
+      }
+    },
+    //消耗渠道顺序
+    showDialogConsumption(index, row) {
+      this.dialogConsumption.visible = true;
+      listConsumptionAll().then(res => {
+        if (res.code === 0) {
+          this.dialogConsumption.list = res.data;
+        }
+        this.tableConsumption.loading = false;
+      });
+    },
+    setChannelConsumptionOrderBy() {
+      this.dialogConsumption.visible = false;
+    },
+    //修改通道状态
     editChannelState(row, index) {
-      console.log(row);
       updateChannelState({ id: index.id, state: index.state }).then(res => {
         if (res.code === 0) {
           this.$message.success(res.msg);
