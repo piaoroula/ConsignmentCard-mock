@@ -40,7 +40,9 @@ Mock.mock(/\/api\/Account\/UpdateCallbackUrl/, 'post', userInfAPI.UpdateCallback
 
 //寄售管理
 Mock.mock(/\/api\/Manage\/GetCards/, 'post', carsdAPI.getCardData)
-
+Mock.mock(/\/api\/Manage\/UpdateCardState/, 'post', carsdAPI.changeUseState)
+Mock.mock(/\/api\/Manage\/GetPassword/, 'post', carsdAPI.catchPass)
+Mock.mock(/\/api\/Manage\/Supplement/, 'post', carsdAPI.addbujiesuan)
 
 //通道列表
 Mock.mock(/\/api\/Channel\/Index/, 'get', channelAPI.getchannelData)

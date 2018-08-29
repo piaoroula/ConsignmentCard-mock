@@ -2,7 +2,7 @@
   <div class="dashboard-container background record">
     <el-form :inline="true" :model="recordSearchForm" class="recordSearch-form-inline" ref="recordSearchForm">
       <el-form-item label="卡类型">
-        <el-select v-model="recordSearchForm.ChannelId" filterable clearable placeholder="请选择卡类型" @change='selectChannels'>
+        <el-select v-model="recordSearchForm.ChannelId" filterable clearable placeholder="请选择卡类型">
           <el-option v-for="channel in ChannelList" :key="channel.id" :label="channel.name" :value="channel.name">
             <span style="float: left">{{ channel.name }}</span>
             <span style="float: right; color: #8492a6; font-size: 13px">{{ channel.buyRate }}</span>

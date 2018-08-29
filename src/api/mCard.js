@@ -66,6 +66,6 @@ export function getPassword(cardId) {
   return request({
     url: '/api/Manage/GetPassword',
     method: 'post',
-    params: { cardId }
+    data: { cardId }
   })
 }
