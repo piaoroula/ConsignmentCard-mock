@@ -34,7 +34,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">提交查询</el-button>
-          <el-button type="success" @click="reportExcel">导出Excel</el-button>
+          <!-- <el-button type="success" @click="reportExcel">导出Excel</el-button> -->
           <el-button @click="clearText">重置</el-button>
         </el-form-item>
       </el-form>
@@ -139,7 +139,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="editCardState">提交</el-button>
+          <el-button type="primary" :loading="editCardStateLoading" @click="editCardState">提交</el-button>
           <el-button @click="upUseStateVisible=false">取消</el-button>
         </el-form-item>
       </el-form>
@@ -152,7 +152,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="batcheditCardState">提交</el-button>
+          <el-button type="primary" :loading="editCardStateLoading" @click="batcheditCardState">批量提交</el-button>
           <el-button @click="upUseStateVisible=false">取消</el-button>
         </el-form-item>
       </el-form>
@@ -300,7 +300,6 @@ export default {
         page: this.formInline.page
       };
       getCards(data).then(res => {
-        console.log(res);
         if (res.code == 0) {
           if (res.total > 0) {
             this.tableData = res.items;
@@ -378,33 +377,32 @@ export default {
       this.updateState = "";
       this.editUseStates = [];
       this.editUseStateVisible = true;
-      if (row.useState === 0) {
-        this.editUseStates.push({ id: 4, name: "失败" });
-      } else if (row.useState === 1) {
-        this.editUseStates.push(
-          { id: 0, name: "待处理" },
-          { id: 4, name: "失败" },
-          { id: 5, name: "可疑" }
-        );
-      } else if (row.useState === 2) {
-        this.editUseStates.push(
-          { id: 0, name: "待处理" },
-          { id: 4, name: "失败" },
-          { id: 5, name: "可疑" },
-          { id: 3, name: "成功" }
-        );
-      } else if (row.useState === 4) {
-        this.editUseStates.push(
-          { id: 0, name: "待处理" },
-          { id: 5, name: "可疑" },
-          { id: 3, name: "成功" }
-        );
-      } else if (row.useState === 5) {
-        this.editUseStates.push(
-          { id: 0, name: "待处理" },
-          { id: 4, name: "失败" },
-          { id: 3, name: "成功" }
-        );
+      switch (row.useState) {
+        case 0:
+          this.editUseStates.push({ id: 4, name: "失败" });
+          break;
+        case 2:
+          this.editUseStates.push(
+            { id: 0, name: "待处理" },
+            { id: 4, name: "失败" },
+            { id: 5, name: "可疑" },
+            { id: 3, name: "成功" }
+          );
+          break;
+        case 4:
+          this.editUseStates.push(
+            { id: 0, name: "待处理" },
+            { id: 5, name: "可疑" },
+            { id: 3, name: "成功" }
+          );
+          break;
+        case 5:
+          this.editUseStates.push(
+            { id: 0, name: "待处理" },
+            { id: 4, name: "失败" },
+            { id: 3, name: "成功" }
+          );
+          break;
       }
     },
     //onSelect 打开面值弹窗口
@@ -512,6 +510,7 @@ export default {
         this.$message.error("请选择卡");
       } else {
         this.batchEditUseStateVisible = true;
+        this.updateState = null;
         this.batchEditUseStates = this.usestates;
       }
     },
@@ -519,31 +518,124 @@ export default {
     batcheditCardState(val) {
       this.editCardStateLoading = true;
       val = this.multipleSelection;
+      var curUseState;
       val.forEach(item => {
+        this.formUseState = item;
         //获取当前行的状态
-        var curUseState = item.useState;
-      });
-      //目标寄售状态
-      var targetUseState = this.updateState;
-      // 1 已取出 只能修改为失败 4、可疑 5、待处理 0
-      if (curUseState === 1) {
-        if (
-          targetUseState === 4 ||
-          targetUseState === 5 ||
-          targetUseState === 0
-        ) {
-          return;
-        } else {
-          this.$message.error("");
+        curUseState = item.useState;
+        //目标寄售状态
+        var targetUseState = this.updateState;
+        switch (curUseState) {
+          // 1 已取出 只能修改为失败 4、可疑 5、待处理 0
+          case 1:
+            if (
+              targetUseState != 4 &&
+              targetUseState != 5 &&
+              targetUseState != 0
+            ) {
+              return;
+            }
+            break;
+          // 2 处理中 只能修改为待处理 0、失败 4、可疑 5 、成功 3
+          case 2:
+            if (
+              targetUseState != 4 &&
+              targetUseState != 5 &&
+              targetUseState != 0 &&
+              targetUseState != 3
+            ) {
+              return;
+            }
+            break;
+          // 3 成功 不可修改为其他状态
+          case 3:
+            return;
+            break;
+          // 4 失败 只能修改为待处理 0、可疑 5、成功 3
+          case 4:
+            if (
+              targetUseState != 5 &&
+              targetUseState != 0 &&
+              targetUseState != 3
+            ) {
+              return;
+            }
+            break;
+          // 5 可疑 只能修改为待处理 0、失败 4、成功 3
+          case 5:
+            if (
+              targetUseState != 4 &&
+              targetUseState != 0 &&
+              targetUseState != 3
+            ) {
+              return;
+            }
+            break;
         }
-      }
-      updateCardState().then(res => {});
+        var data = {
+          id: this.formUseState.id,
+          useState: this.updateState,
+          updateBCFaceValue: this.updateBCFaceValue
+        };
+        if (this.updateState == null) {
+          this.$message.error("请选择要修改得寄售状态！");
+        } else if (
+          this.updateState === 3 &&
+          !isupdateBCFaceValue(this.updateBCFaceValue)
+        ) {
+          this.editCardStateLoading = false;
+          this.$message.error(
+            "寄售状态改为成功时，成功面值不可为空且要为验证非零的正整数！"
+          );
+        } else {
+          updateCardState(data).then(res => {
+            this.editCardStateLoading = true;
+            console.log(res);
+            if (res.code === 0) {
+              this.getlist();
+              var useStateText;
+
+              switch (data.useState) {
+                case 0:
+                  useStateText = "待处理";
+                  break;
+                case 1:
+                  useStateText = "已取出";
+                  break;
+                case 2:
+                  useStateText = "处理中";
+                  break;
+                case 3:
+                  useStateText = "成功";
+                  break;
+                case 4:
+                  useStateText = "失败";
+                  break;
+                case 5:
+                  useStateText = "可疑";
+                  break;
+                case 6:
+                  useStateText = "可疑核查中";
+                  break;
+              }
+              this.$notify({
+                title: "成功",
+                message:
+                  "修改卡ID为：" + data.id + "的卡状态修改为" + useStateText,
+                type: "success"
+              });
+              this.editCardStateLoading = false;
+              this.addFaceValueVisibel = false;
+              this.batchEditUseStateVisible = false;
+            } else {
+              this.editCardStateLoading = false;
+              this.$message, error(res.msg);
+            }
+          });
+        }
+      });
     },
 
-    // 2 处理中 只能修改为待处理 0、失败 4、可疑 5 、成功 3
-    // 3 成功 不可修改为其他状态
-    // 4 失败 只能修改为待处理 0、可疑 5、成功 3
-    // 5 可疑 只能修改为待处理 0、失败 4、成功 3
     //每一页显示的数量
     handleSizeChange(val) {
       this.formInline.limit = val;

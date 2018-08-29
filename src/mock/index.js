@@ -12,6 +12,9 @@ import consignmentAPI from './card/consignment'
 import consumptionAPI from './card/consumption'
 import recordAPI from './card/record'
 import statisticsAPI from './card/statistics'
+import settlementAPI from './finance/settlement'
+import detailAPI from './finance/detail'
+import settlementrecordAPI from './finance/settlementrecord'
 // Mock.setup({
 //   timeout: '350-600'
 // })
@@ -77,6 +80,18 @@ Mock.mock(/\/api\/Card\/GetStatistics/, 'post', recordAPI.getCountData)
 //寄售汇总
 Mock.mock(/\/api\/Card\/GetMStatistics/, 'post', statisticsAPI.getStatisticsData)   //获取寄售面值分析
 Mock.mock(/\/api\/Card\/GetUStatistics/, 'post', statisticsAPI.getStatisticsUserData)   ///获取寄售用户分析
+
+
+//---财务操作---
+//申请提现
+Mock.mock(/\/api\/Finance\/GetSettlement/, 'get', settlementAPI.getAccounts)
+Mock.mock(/\/api\/Finance\/Settlement/, 'post', settlementAPI.submitAccount)
+
+//财务明细
+Mock.mock(/\/api\/Finance\/GetFinances/, 'post', detailAPI.getFinanceDetail)
+
+//提现记录
+Mock.mock(/\/api\/Finance\/GetSettementRecord/, 'post', settlementrecordAPI.getFinanceDetail)
 
 // 搜索相关
 Mock.mock(/\/search\/user/, 'get', remoteSearchAPI.searchUser)

@@ -153,6 +153,98 @@ export const asyncRouterMap = [
       { path: 'cards', component: () => import('@/views/card/cards'), name: 'cards', meta: { title: 'cards', noCache: true } },
     ]
   },
-
+  {
+    path: '/order',
+    component: Layout,
+    redirect: '/order/submit',
+    name: 'order',
+    meta: { title: 'order', icon: 'tab', roles: ['Order', 'OrderManage'] },
+    children: [
+      {
+        path: 'submitorder',
+        name: 'orderSubmit',
+        component: () => import('@/views/order/submit/index'),
+        meta: { title: 'orderSubmit', roles: ['Order'] }
+      },
+      {
+        path: 'record',
+        name: 'orderRecord',
+        component: () => import('@/views/order/record/index'),
+        meta: { title: 'orderRecord', roles: ['Order'] }
+      },
+      {
+        path: 'products',
+        name: 'Products',
+        component: () => import('@/views/order/products/index'),
+        meta: { title: 'Products', roles: ['OrderManage'] }
+      },
+      {
+        path: 'orders',
+        name: 'orderManage',
+        component: () => import('@/views/order/orders/index'),
+        meta: { title: 'orderManage', roles: ['OrderManage'] }
+      }
+    ]
+  },
+  {
+    path: '/finance',
+    component: Layout,
+    redirect: '/finance/settlement',
+    name: 'financesettlement',
+    meta: { title: 'settlement', icon: 'lock', roles: ['Consign'] },
+    children: [
+      {
+        path: 'settlement',
+        name: 'addsettlement',
+        component: () => import('@/views/finance/settlement/index'),
+        meta: { title: 'addsettlement', roles: ['Consign'] }
+      },
+      {
+        path: 'detail',
+        name: 'financedetail',
+        component: () => import('@/views/finance/index'),
+        meta: { title: 'financedetail', roles: ['Consign'] }
+      },
+      {
+        path: 'settlementrecord',
+        name: 'settlementrecord',
+        component: () => import('@/views/finance/settlementrecord/index'),
+        meta: { title: 'settlementrecord', roles: ['Consign'] }
+      },
+      {
+        path: 'settlements',
+        name: 'settlements',
+        component: () => import('@/views/finance/settlements/index'),
+        meta: { title: 'settlements', roles: ['ConsignManage'] }
+      },
+      {
+        path: 'finances',
+        name: 'finances',
+        component: () => import('@/views/finance/finances/index'),
+        meta: { title: 'finances', roles: ['ConsignManage'] }
+      }
+    ]
+  },
+  {
+    path: '/manage',
+    component: Layout,
+    redirect: '/manage/users',
+    name: 'systemmanager',
+    meta: { title: 'systemmanager', icon: 'component', roles: ['ConsignManage', 'SuperManage', 'OrderManage'] },
+    children: [
+      {
+        path: 'users',
+        name: 'users',
+        component: () => import('@/views/manage/users/index'),
+        meta: { title: 'users', roles: ['ConsignManage', 'SuperManage', 'OrderManage'] }
+      },
+      {
+        path: 'notice',
+        name: 'SystemNotice',
+        component: () => import('@/views/manage/notice/index'),
+        meta: { title: 'SystemNotice', roles: ['ConsignManage', 'SuperManage', 'OrderManage'] }
+      }
+    ]
+  },
   { path: '*', redirect: '/404', hidden: true }
 ]

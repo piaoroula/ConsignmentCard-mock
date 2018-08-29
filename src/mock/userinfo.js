@@ -4,25 +4,23 @@ import { isvalidatephone, validateURL } from "@/utils/validate";
 let userinfoData = {}
 let apiInfo = {}
 var data
-var userdata = [
-  userinfoData = {
-    name: '施芳平',
-    balance: 27,
-    email: '1079385523@qq.com',
-    // phoneNumber: '',
-    // code: '',
-    // selectAcount: [],
-    // institution: '',
-    // accountBank: '',
-    // account: '',
-    realName: '施芳平'
-  },
+userinfoData = {
+  name: '施芳平',
+  balance: 2700,
+  email: '1079385523@qq.com',
+  // phoneNumber: '',
+  // code: '',
+  // selectAcount: [],
+  // institution: '',
+  // accountBank: '',
+  //account: '',
+  realName: '施芳平'
+},
   apiInfo = {
     id: 1001,
     secretKey: '9256aB9d-E796-47D9-3ff4-c29E6DeF71E7',
     callbackUrl: ''
   }
-]
 
 export default {
   //获取账号信息
@@ -78,3 +76,4 @@ export default {
     }
   }
 }
+export { userinfoData }

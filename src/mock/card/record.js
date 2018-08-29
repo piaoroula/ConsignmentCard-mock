@@ -84,7 +84,7 @@ export default {
         processCount = 0
       }
 
-    } 0
+    }
     // //如果卡状态为3=》成功
     // if (allUseStateArry.indexOf(3) >= 0) {
     //   if (item.useState === 3) {
