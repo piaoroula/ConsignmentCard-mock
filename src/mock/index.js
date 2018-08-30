@@ -15,6 +15,8 @@ import statisticsAPI from './card/statistics'
 import settlementAPI from './finance/settlement'
 import detailAPI from './finance/detail'
 import settlementrecordAPI from './finance/settlementrecord'
+import settlementsAPI from './finance/settlements'
+import financesAPI from './finance/finances'
 // Mock.setup({
 //   timeout: '350-600'
 // })
@@ -92,6 +94,18 @@ Mock.mock(/\/api\/Finance\/GetFinances/, 'post', detailAPI.getFinanceDetail)
 
 //提现记录
 Mock.mock(/\/api\/Finance\/GetSettementRecord/, 'post', settlementrecordAPI.getFinanceDetail)
+
+
+//提现审核
+Mock.mock(/\/api\/Manage\/GetSettlementPage/, 'post', settlementsAPI.getsettlementData)
+Mock.mock(/\/api\/Manage\/UpdateSettlementState/, 'post', settlementsAPI.changeSettlementState)
+Mock.mock(/\/api\/Manage\/GetSettlementAccount/, 'get', settlementsAPI.getSettlementInf)
+
+
+//财务审计
+Mock.mock(/\/api\/Manage\/GetFinances/, 'get', financesAPI.getFinancesData)
+
+
 
 // 搜索相关
 Mock.mock(/\/search\/user/, 'get', remoteSearchAPI.searchUser)

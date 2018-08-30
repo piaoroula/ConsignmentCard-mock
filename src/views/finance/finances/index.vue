@@ -61,15 +61,15 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import moment from 'moment'
-import { getFinances } from '@/api/mFinance'
-import selecttime from '@/data/selecttime'
+import { mapGetters } from "vuex";
+import moment from "moment";
+import { getFinances } from "@/api/mFinance";
+import selecttime from "@/data/selecttime";
 
 export default {
-  name: 'finances',
+  name: "finances",
   computed: {
-    ...mapGetters(['name', 'roles'])
+    ...mapGetters(["name", "roles"])
   },
   data() {
     return {
@@ -90,30 +90,30 @@ export default {
         endTime: null,
         startTime: null
       },
-      usestates: [{ id: 0, name: '支出' }, { id: 1, name: '收入' }],
+      usestates: [{ id: 0, name: "支出" }, { id: 1, name: "收入" }],
       usestates1: [
-        { id: 0, name: '寄售收入' },
-        { id: 1, name: '补结算收入' },
-        { id: 2, name: '提现支出' },
-        { id: 3, name: '提现失败退回收入' }
+        { id: 0, name: "寄售收入" },
+        { id: 1, name: "补结算收入" },
+        { id: 2, name: "提现支出" },
+        { id: 3, name: "提现失败退回收入" }
       ],
       tableData: [],
-      emptytext: '暂无数据',
+      emptytext: "暂无数据",
       loading: false
-    }
+    };
   },
   created() {
-    this.pickerOptions2.shortcuts = selecttime.shortcuts
-    this.getlist()
+    this.pickerOptions2.shortcuts = selecttime.shortcuts;
+    this.getlist();
   },
   methods: {
     handleSizeChange(val) {
-      this.formInline.limit = val
-      this.getlist()
+      this.formInline.limit = val;
+      this.getlist();
     },
     handleCurrentChange(val) {
-      this.formInline.page = val
-      this.getlist()
+      this.formInline.page = val;
+      this.getlist();
     },
     reset() {
       this.formInline = {
@@ -129,52 +129,57 @@ export default {
         total: 0,
         endTime: null,
         startTime: null
-      }
+      };
     },
     onSubmit() {
-      this.getlist()
+      this.getlist();
     },
+    //获取财务审计数据
     getlist() {
-      this.loading = true
-      this.formInline.beginTime = moment(this.formInline.times[0]).format(
-        'YYYY-MM-DD HH:mm:ss'
-      )
-      this.formInline.endTime = moment(this.formInline.times[1]).format(
-        'YYYY-MM-DD HH:mm:ss'
-      )
-      var data = this.formInline
-      getFinances(data).then(res => {
-        if (res.code === 0) {
-          if (res.data != null && res.data.length > 0) {
-            this.tableData = res.data
-            this.tableData.forEach((row, index) => {
-              // 支出
-              if (row.type === 0) {
-                row.afterAmount = row.beforeAmount - row.amount
-              }
-              // 收入
-              else {
-                row.afterAmount = row.beforeAmount + row.amount
-              }
-              if (row.afterAmount !== undefined) {
-                row.afterAmount = parseFloat(row.afterAmount.toFixed(4))
-              }
-            })
-            this.loading = false
-            this.formInline.total = res.count
-          } else {
-            this.formInline.total = 0
-            this.tableData = []
-            this.loading = false
-            this.emptytext = '没有符合条件的数据'
+      this.loading = true;
+      var data = {
+        beginTime: moment(this.formInline.times[0]).format(
+          "YYYY-MM-DD HH:mm:ss"
+        ),
+        endTime: moment(this.formInline.times[1]).format("YYYY-MM-DD HH:mm:ss"),
+        userNameOrId: this.formInline.userNameOrId,
+        classify: this.formInline.classify,
+        page: this.formInline.page,
+        limit: this.formInline.limit
+      };
+      getFinances(data)
+        .then(res => {
+          if (res.code == 0) {
+            if (res.total > 0) {
+              this.tableData = res.item;
+              this.tableData.forEach((row, index) => {
+                // 支出
+                if (row.type == 0) {
+                  row.afterAmount = row.beforeAmount - row.amount;
+                } else {
+                  // 收入
+                  row.afterAmount = row.beforeAmount + row.amount;
+                }
+                if (row.afterAmount !== undefined) {
+                  row.afterAmount = parseFloat(row.afterAmount.toFixed(4));
+                }
+              });
+              this.loading = false;
+              this.formInline.total = res.total;
+            } else {
+              this.formInline.total = 0;
+              this.tableData = [];
+              this.loading = false;
+              this.emptytext = "没有符合条件的数据";
+            }
           }
-        }
-      }).catch(()=>{
-            this.loading = false
-          });
+        })
+        .catch(() => {
+          this.loading = false;
+        });
     }
   }
-}
+};
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
 .box-card {

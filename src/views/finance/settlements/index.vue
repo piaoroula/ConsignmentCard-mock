@@ -20,7 +20,7 @@
           <el-button @click="onClear">重置</el-button>
         </el-form-item>
       </el-form>
-      <el-tag type="success">成功提现金额：  {{accounts}} 元</el-tag>
+      <el-tag type="success">成功提现金额： {{accounts}} 元</el-tag>
     </div>
     <el-table :data="tableData" :empty-text="emptytext" border style="width: 100%" v-loading='loading' element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" element-loading-background="rgba(255, 255, 255, 0.8)">
       <el-table-column prop="id" align="center" label="编号" width="80px"></el-table-column>
@@ -87,27 +87,33 @@
       <el-form ref="form" :model="formAccount" label-width="80px" class="showAccountInfo">
         <el-form-item label="收款人">
           {{formAccount.name}}
-          <el-button type="text" class="tag-read" size="mini" v-clipboard:copy='formAccount.name' v-clipboard:success='clipboardSuccess' v-clipboard:error='clipboardError' v-if="formAccount.name!=null && formAccount.name!=undefined && formAccount.name!=''"><svg-icon icon-class="clipboard" /> 复制</el-button>
+          <el-button type="text" class="tag-read" size="mini" v-clipboard:copy='formAccount.name' v-clipboard:success='clipboardSuccess' v-clipboard:error='clipboardError' v-if="formAccount.name!=null && formAccount.name!=undefined && formAccount.name!=''">
+            <svg-icon icon-class="clipboard" /> 复制</el-button>
         </el-form-item>
         <el-form-item label="机构名称">
           {{formAccount.institution}}
-          <el-button type="text" class="tag-read" size="mini" v-clipboard:copy='formAccount.institution' v-clipboard:success='clipboardSuccess' v-clipboard:error='clipboardError' v-if="formAccount.institution!=null && formAccount.institution!=undefined && formAccount.institution!=''"><svg-icon icon-class="clipboard" /> 复制</el-button>
+          <el-button type="text" class="tag-read" size="mini" v-clipboard:copy='formAccount.institution' v-clipboard:success='clipboardSuccess' v-clipboard:error='clipboardError' v-if="formAccount.institution!=null && formAccount.institution!=undefined && formAccount.institution!=''">
+            <svg-icon icon-class="clipboard" /> 复制</el-button>
         </el-form-item>
         <el-form-item label="开户行">
           {{formAccount.accountBank}}
-          <el-button type="text" class="tag-read" size="mini" v-clipboard:copy='formAccount.accountBank' v-clipboard:success='clipboardSuccess' v-clipboard:error='clipboardError' v-if="formAccount.accountBank!=null && formAccount.accountBank!=undefined && formAccount.accountBank!=''"><svg-icon icon-class="clipboard" /> 复制</el-button>
+          <el-button type="text" class="tag-read" size="mini" v-clipboard:copy='formAccount.accountBank' v-clipboard:success='clipboardSuccess' v-clipboard:error='clipboardError' v-if="formAccount.accountBank!=null && formAccount.accountBank!=undefined && formAccount.accountBank!=''">
+            <svg-icon icon-class="clipboard" /> 复制</el-button>
         </el-form-item>
         <el-form-item label="收款账号">
           {{formAccount.account}}
-          <el-button type="text" class="tag-read" size="mini" v-clipboard:copy='formAccount.account' v-clipboard:success='clipboardSuccess' v-clipboard:error='clipboardError' v-if="formAccount.account!=null && formAccount.account!=undefined && formAccount.account!=''"><svg-icon icon-class="clipboard" /> 复制</el-button>
+          <el-button type="text" class="tag-read" size="mini" v-clipboard:copy='formAccount.account' v-clipboard:success='clipboardSuccess' v-clipboard:error='clipboardError' v-if="formAccount.account!=null && formAccount.account!=undefined && formAccount.account!=''">
+            <svg-icon icon-class="clipboard" /> 复制</el-button>
         </el-form-item>
         <el-form-item label="提现金额">
           {{formAccount.amount}}
-          <el-button type="text" class="tag-read" size="mini" v-clipboard:copy='formAccount.amount' v-clipboard:success='clipboardSuccess' v-clipboard:error='clipboardError' v-if="formAccount.amount!=null && formAccount.amount!=undefined && formAccount.amount!=''"><svg-icon icon-class="clipboard" /> 复制</el-button>
+          <el-button type="text" class="tag-read" size="mini" v-clipboard:copy='formAccount.amount' v-clipboard:success='clipboardSuccess' v-clipboard:error='clipboardError' v-if="formAccount.amount!=null && formAccount.amount!=undefined && formAccount.amount!=''">
+            <svg-icon icon-class="clipboard" /> 复制</el-button>
         </el-form-item>
         <el-form-item label="流水ID">
-        {{formAccount.id}}
-        <el-button type="text" class="tag-read" size="mini" v-clipboard:copy='formAccount.id' v-clipboard:success='clipboardSuccess' v-clipboard:error='clipboardError' v-if="formAccount.id!=null && formAccount.id!=undefined && formAccount.id!=''"><svg-icon icon-class="clipboard" /> 复制</el-button>
+          {{formAccount.id}}
+          <el-button type="text" class="tag-read" size="mini" v-clipboard:copy='formAccount.id' v-clipboard:success='clipboardSuccess' v-clipboard:error='clipboardError' v-if="formAccount.id!=null && formAccount.id!=undefined && formAccount.id!=''">
+            <svg-icon icon-class="clipboard" /> 复制</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -115,25 +121,24 @@
 </template>
 
 <script>
-import clip from '@/utils/clipboard' // use clipboard directly
-import clipboard from '@/directive/clipboard/index.js' // use clipboard by v-directive
-import { mapGetters } from 'vuex'
+import clip from "@/utils/clipboard"; // use clipboard directly
+import clipboard from "@/directive/clipboard/index.js"; // use clipboard by v-directive
+import { mapGetters } from "vuex";
 import {
   getSettlementPage,
-  getSettlementAccount,
   updateSettlementState,
-  getSettlementAccounts
-} from '@/api/mSettlement'
-import moment from 'moment'
-import selecttime from '@/data/selecttime'
+  getSettlementAccount
+} from "@/api/mSettlement";
+import moment from "moment";
+import selecttime from "@/data/selecttime";
 
 export default {
-  name: 'settlements',
+  name: "settlements",
   directives: {
     clipboard
   },
   computed: {
-    ...mapGetters(['name', 'roles'])
+    ...mapGetters(["name", "roles"])
   },
   data() {
     return {
@@ -151,22 +156,22 @@ export default {
       orderText: null,
       formAccount: { name: null, account: null, institution: null },
       usestates: [
-        { id: 0, name: '待处理' },
-        { id: 1, name: '处理中' },
-        { id: 2, name: '成功' },
-        { id: 3, name: '失败' }
+        { id: 0, name: "待处理" },
+        { id: 1, name: "处理中" },
+        { id: 2, name: "成功" },
+        { id: 3, name: "失败" }
       ],
       tableData: [],
       editStateVisible: false,
       showAccountVisible: false,
-      emptytext: '暂无数据'
-    }
+      emptytext: "暂无数据"
+    };
   },
   created() {
-    this.pickerOptions2.shortcuts = selecttime.shortcuts
-    this.formInline.UserNameOrId = this.$route.params.userName
-    this.getlist()
-    this.getAccounts()
+    this.pickerOptions2.shortcuts = selecttime.shortcuts;
+    this.formInline.UserNameOrId = this.$route.params.userName;
+    this.getlist();
+    // this.getAccounts();
   },
   methods: {
     cerateForm() {
@@ -182,139 +187,139 @@ export default {
         total: 0,
         endTime: null,
         startTime: null
-      }
+      };
     },
+    //每页显示的数目
     handleSizeChange(val) {
-      this.formInline.limit = val
-      this.getlist()
+      this.formInline.limit = val;
+      this.getlist();
     },
+    //当前页
     handleCurrentChange(val) {
-      this.formInline.page = val
-      this.getlist()
+      this.formInline.page = val;
+      this.getlist();
     },
-    onSubmit() {
-      this.getlist()
-      this.getAccounts()
-    },
-    onClear() {
-      this.formInline = this.cerateForm()
-    },
+    //获取提现审核数据
     getlist() {
-      this.loading = true
-      this.formInline.beginTime = moment(this.formInline.times[0]).format(
-        'YYYY-MM-DD HH:mm:ss'
-      )
-      this.formInline.endTime = moment(this.formInline.times[1]).format(
-        'YYYY-MM-DD HH:mm:ss'
-      )
-      var data = this.formInline
+      var data = {
+        userNameOrId: this.formInline.userNameOrId,
+        beginTime: moment(this.formInline.times[0]).format(
+          "YYYY-MM-DD HH:mm:ss"
+        ),
+        endTime: moment(this.formInline.times[1]).format("YYYY-MM-DD HH:mm:ss"),
+        state: this.formInline.state,
+        page: this.formInline.page,
+        limit: this.formInline.limit
+      };
       getSettlementPage(data).then(res => {
-        if (res.code === 0) {
-          if (res.data != null && res.data.length > 0) {
-            this.tableData = res.data
-            this.formInline.total = res.count
-            this.loading = false
+        if (res.code == 0) {
+          if (res.total > 0) {
+            this.tableData = res.item;
+            this.accounts = res.accounts;
+            this.tableData.forEach(item => {
+              item.creationTime = moment(item.creationTime).format(
+                "YYYY-MM-DD HH:mm:ss"
+              );
+              if (item.state != 0) {
+                item.processTime = moment(item.processTime).format(
+                  "YYYY-MM-DD HH:mm:ss"
+                );
+              }
+            });
+            this.formInline.total = res.total;
           } else {
-            this.formInline.total = 0
-            this.tableData = []
-            this.emptytext = '没有符合条件的数据'
-            this.loading = false
+            this.formInline.total = 0;
+            this.accounts = 0;
+            this.tableData = [];
           }
         }
-      }).catch(() => {
-        this.tableData = []
-        this.formInline.total = 0
-        this.loading = false
-      })
+      });
+      this.loading = false;
     },
-    getAccounts() {
-      this.loading = true
-      this.formInline.beginTime = moment(this.formInline.times[0]).format(
-        'YYYY-MM-DD HH:mm:ss'
-      )
-      this.formInline.endTime = moment(this.formInline.times[1]).format(
-        'YYYY-MM-DD HH:mm:ss'
-      )
-      this.formInline.UserNameOrId = this.$route.params.userName
-      var data = this.formInline
-      getSettlementAccounts(data).then(res => {
-        if (res.code === 0) {
-          this.accounts = res.data
-        }
-        this.loading = false
-      }).catch(() => {
-        this.loading = false
-      })
+    //搜索
+    onSubmit() {
+      this.getlist();
+      this.getAccounts();
     },
+    //重置
+    onClear() {
+      this.formInline = {};
+      this.formInline.times = [
+        new Date().setHours(0, 0, 0) - 24 * 60 * 60 * 1000,
+        new Date().setHours(0, 0, 0) + 86398999
+      ];
+    },
+    //打开修改提现状态弹窗
     openEditPages(row, index) {
-      this.editStateVisible = true
-      this.orderId = null
-      this.formState = row
-      var state = row.state
-      this.updatestate = null
-      this.editStates = []
-      if (state === 0) {
-        this.editStates.push({ id: 1, name: '处理中' })
-      }
-      if (state === 1) {
-        this.editStates.push({ id: 2, name: '成功' })
-        this.editStates.push({ id: 3, name: '失败' })
+      this.editStateVisible = true;
+      this.updatestate = null;
+      this.formState = row;
+      console.log(this.formState.processTime);
+      console.log(new Date(new Date().getTime() - 1 * 60 * 60 * 1000));
+      this.editStates = [];
+      switch (row.state) {
+        case 0:
+          this.editStates.push({ id: 1, name: "处理中" });
+          break;
+        case 1:
+          this.editStates.push(
+            { id: 2, name: "成功" },
+            { id: 3, name: "失败" }
+          );
+          break;
       }
     },
+    //编辑保存提现状态
     editState() {
-      if (
-        this.updatestate === 2 &&
-        (this.orderId == null || this.orderId === '')
-      ) {
-        this.$message.error('修改状态为成功时，银行流水号不能为空！')
-      } else {
-        this.editStateLoading = true
-        var obj = {
-          id: this.formState.id,
-          state: this.updatestate,
-          orderId: this.orderId
-        }
-        updateSettlementState(obj).then(res => {
-          if (res.code === 0) {
-            this.$message({
-              message: '修改提现状态成功！',
-              type: 'success'
-            })
-            this.editStateVisible = false
-            this.getlist()
+      this.editStateLoading = true;
+      var data = {
+        id: this.formState.id,
+        state: this.updatestate,
+        remark: this.orderId
+      };
+      if (this.updatestate != null || this.updatestate != undefined) {
+        updateSettlementState(data).then(res => {
+          if (res.code == 0) {
+            this.editStateVisible = false;
+            this.editStates = [];
+            this.getlist();
+            this.$message.success(res.msg);
+          } else {
+            this.$message.error(res.msg);
           }
-          this.editStateLoading = false
-        }).catch(() => {
-          this.editStateLoading = false
-        })
+        });
+      } else {
+        this.$message.error("请选择提现状态");
       }
+      this.editStateLoading = false;
     },
+    //查看收款信息
     openAccountPages(row, index) {
-      this.showAccountVisible = true
-      getSettlementAccount(row.accountId).then(res => {
-        if (res.code === 0) {
-          this.formAccount = res.data
-          this.formAccount.amount = row.amount
-          this.formAccount.id = row.id
+      this.showAccountVisible = true;
+      getSettlementAccount(row.id).then(res => {
+        if (res.code == 0) {
+          this.formAccount = row;
+        } else {
+          this.$message.error(res.msg);
         }
-      })
+      });
     },
     clipboardSuccess() {
       this.$message({
-        message: '复制成功',
-        type: 'success',
+        message: "复制成功",
+        type: "success",
         duration: 1500
-      })
+      });
     },
     clipboardError() {
       this.$message({
-        message: '复制失败，请手动复制',
-        type: 'error',
+        message: "复制失败，请手动复制",
+        type: "error",
         duration: 1500
-      })
+      });
     }
   }
-}
+};
 </script>
 <style>
 .el-dialog {
@@ -323,8 +328,8 @@ export default {
   top: 25% !important;
   margin-top: 0px !important;
 }
-.el-dialog__body{
-padding: 10px 20px;
+.el-dialog__body {
+  padding: 10px 20px;
 }
 .showAccountInfo .el-form-item {
   margin-bottom: 0px;

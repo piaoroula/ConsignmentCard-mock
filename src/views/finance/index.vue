@@ -119,6 +119,9 @@ export default {
         if (res.code == 0) {
           if (res.total > 0) {
             this.tableData = res.item;
+            this.tableData.forEach(item => {
+              item.afterAmount = item.beforeAmount + item.amount;
+            });
             this.formInline.total = res.total;
           } else {
             this.tableData = [];

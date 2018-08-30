@@ -8,7 +8,7 @@
         </el-form-item>
         <el-form-item label="提现状态">
           <el-select v-model="formInline.state" clearable placeholder="请选择提现状态">
-            <el-option v-for="state in states" :key="state.id" :label="state.name" :value="state.name">
+            <el-option v-for="state in states" :key="state.id" :label="state.name" :value="state.id">
             </el-option>
           </el-select>
         </el-form-item>
@@ -70,8 +70,9 @@ export default {
       },
       states: [
         { id: 0, name: "待处理" },
-        { id: 1, name: "成功" },
-        { id: 2, name: "失败" }
+        { id: 1, name: "处理中" },
+        { id: 2, name: "成功" },
+        { id: 3, name: "失败" }
       ],
       tableData: [],
       loading: false,
@@ -105,7 +106,12 @@ export default {
             this.tableData = res.item;
             this.formInline.total = res.total;
             this.tableData.forEach(item => {
-              item.processTime = moment(item.processTime).format(
+              if (item.state != 0) {
+                item.processTime = moment(item.processTime).format(
+                  "YYYY-MM-DD HH:mm:ss"
+                );
+              }
+              item.creationTime = moment(item.creationTime).format(
                 "YYYY-MM-DD HH:mm:ss"
               );
             });
@@ -131,6 +137,14 @@ export default {
     //搜索
     onSubmit() {
       this.getlist();
+    },
+    //重置
+    onClear() {
+      this.formInline = {};
+      this.formInline.times = [
+        new Date().setDate(new Date().getDate() - 7),
+        new Date()
+      ];
     }
   }
 };
