@@ -21,7 +21,7 @@ export default {
     users: '用户管理',
     channels: '通道管理',
     consumption: '渠道管理',
-    cards: '寄售详情',
+    record: '寄售详情',
     settlements: '提现审核',
     finances: '财务审计',
     statistics: '统计分析',

@@ -300,15 +300,16 @@ export default {
         page: this.formInline.page
       };
       getCards(data).then(res => {
+        console.log(res);
         if (res.code == 0) {
           if (res.total > 0) {
             this.tableData = res.items;
-            this.total = res.total;
+            this.formInline.total = res.total;
             this.numbers = res.data;
             this.loading = false;
           } else {
             this.loading = false;
-            this.total = 0;
+            this.formInline.total = 0;
             this.tableData = [];
             this.emptytext = "暂无数据";
           }

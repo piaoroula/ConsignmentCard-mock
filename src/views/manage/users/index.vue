@@ -31,12 +31,12 @@
         <el-table-column prop='balance' align="center" label='余额' width='120px'> </el-table-column>
         <el-table-column label='可寄售' align="center" width='110px' style='text-align:center;'>
           <template slot-scope='scope'>
-            <el-switch v-model='scope.row.canConsign' @change="editConsignState(scope.$index,scope.row)" active-text='是' inactive-text='否'></el-switch>
+            <el-switch v-model='scope.row.canConsign' @change="editConsignState(scope.$index,scope.row)" on-value=true of-value=false active-text='是' inactive-text='否'></el-switch>
           </template>
         </el-table-column>
         <el-table-column prop='state' align="center" label='账号状态' width='140px'>
           <template slot-scope='scope'>
-            <el-switch v-model='scope.row.isEnabled' @change="editUserState(scope.$index,scope.row)" active-text='正常' inactive-text='禁用'></el-switch>
+            <el-switch v-model='scope.row.isEnabled' @change="editUserState(scope.$index,scope.row)" active-value=true inactive-value=false active-text='正常' inactive-text='禁用'></el-switch>
           </template>
         </el-table-column>
         <el-table-column label='操作' width='150px' align="center" fixed='right'>
@@ -142,7 +142,7 @@
     </div>
     <div class="identity">
       <el-dialog title="身份验证信息" size=small :visible.sync="identityVisible" class="api-el-dialog" label-width="80px">
-        <el-form ref="form" :model="formIdentity" label-width="120px" style="height:500px;overflow-y:auto;">          
+        <el-form ref="form" :model="formIdentity" label-width="120px" style="height:500px;overflow-y:auto;">
           <el-form-item v-if="hasConsign == false">
             <font color="red">
               *&nbsp;如身份信息验证合格，可在列表页给该用户设置寄售权限！
@@ -152,13 +152,13 @@
             {{ formIdentity.idCard }}
           </el-form-item>
           <el-form-item label="身份证正面照">
-            <a @click="showImg(formIdentity.idImgFront)"><img :src="formIdentity.idImgFront" width="308" height="175"/></a>
+            <a @click="showImg(formIdentity.idImgFront)"><img :src="formIdentity.idImgFront" width="308" height="175" /></a>
           </el-form-item>
           <el-form-item label="身份证反面照">
-            <a @click="showImg(formIdentity.idImgBack)"><img :src="formIdentity.idImgBack" width="308" height="175"/></a>
+            <a @click="showImg(formIdentity.idImgBack)"><img :src="formIdentity.idImgBack" width="308" height="175" /></a>
           </el-form-item>
           <el-form-item label="手持身份证件照">
-            <a @click="showImg(formIdentity.idImgHold)"><img :src="formIdentity.idImgHold" width="308" height="175"/></a>
+            <a @click="showImg(formIdentity.idImgHold)"><img :src="formIdentity.idImgHold" width="308" height="175" /></a>
           </el-form-item>
         </el-form>
       </el-dialog>
@@ -168,7 +168,7 @@
         <el-form ref="form" :model="formInRole" label-width="80px">
           <el-form-item label="设置角色">
             <el-checkbox-group v-model="formInRole.Ids" size="mini">
-              <el-checkbox v-for="role in roleList"  :label="role.id" :key="role.id">{{role.name}}</el-checkbox>
+              <el-checkbox v-for="role in roleList" :label="role.id" :key="role.id">{{role.name}}</el-checkbox>
             </el-checkbox-group>
           </el-form-item>
           <el-form-item>
@@ -180,19 +180,19 @@
     </div>
     <div class="accountdiv">
       <el-dialog title="提现账号管理" :visible.sync="accountVisible">
-      <el-button type="primary" @click="openAddAccount">新增提现账号</el-button>
-      <el-table :data="formInAccount.accounts" :empty-text="emptytext" border style="width: 100%;height:350px;overflow-y:auto;">
-        <el-table-column prop="id" align="center" label="编号"></el-table-column>
-        <el-table-column prop="account" align="center" label="收款账户"></el-table-column>
-        <el-table-column prop="institution" align="center" label="机构名称"></el-table-column>
-        <el-table-column prop="accountBank" align="center" label="开户行"></el-table-column>
-        <el-table-column label='操作' align="center" width='150px'>
-          <template slot-scope='scope'>
-            <el-button type="text" @click="deleteInfo(scope.row, scope.$index)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-dialog>
+        <el-button type="primary" @click="openAddAccount">新增提现账号</el-button>
+        <el-table :data="formInAccount.accounts" :empty-text="emptytext" border style="width: 100%;height:350px;overflow-y:auto;">
+          <el-table-column prop="id" align="center" label="编号"></el-table-column>
+          <el-table-column prop="account" align="center" label="收款账户"></el-table-column>
+          <el-table-column prop="institution" align="center" label="机构名称"></el-table-column>
+          <el-table-column prop="accountBank" align="center" label="开户行"></el-table-column>
+          <el-table-column label='操作' align="center" width='150px'>
+            <template slot-scope='scope'>
+              <el-button type="text" @click="deleteInfo(scope.row, scope.$index)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-dialog>
     </div>
     <div class="addacountdiv">
       <el-dialog title="新增收款账号" size=small :visible.sync="addAccountVisible" class="api-el-dialog" label-width="80px">
@@ -227,7 +227,7 @@
   </el-card>
 </template>
 <script>
-import { mapGetters } from 'vuex'
+import { mapGetters } from "vuex";
 import {
   getUsers,
   updateUserState,
@@ -246,20 +246,20 @@ import {
   getAccounts,
   addAccount,
   deleteAccount
-} from '@/api/manage'
+} from "@/api/manage";
 
 export default {
-  name: 'users',
+  name: "users",
   computed: {
-    ...mapGetters(['name', 'roles'])
+    ...mapGetters(["name", "roles"])
   },
   data() {
     return {
-      activeName:'Consign',
+      activeName: "Consign",
       balances: null,
       formInline: {
-        userName: '',
-        roleName: '',
+        userName: "",
+        roleName: "",
         state: null,
         page: 1,
         limit: 20,
@@ -313,68 +313,68 @@ export default {
       childloading: false,
       productloading: false,
       identityVisible: false,
-      emptytext: '暂无数据',
+      emptytext: "暂无数据",
       states: [
-        { id: null, name: '请选择账号状态' },
-        { id: 1, name: '正常' },
-        { id: 0, name: '禁用' }
+        { id: null, name: "请选择账号状态" },
+        { id: 1, name: "正常" },
+        { id: 0, name: "禁用" }
       ],
-      formInRole:{userId: null, Ids:[]},
-      oldRoles:[],
-      roleList:[],
+      formInRole: { userId: null, Ids: [] },
+      oldRoles: [],
+      roleList: [],
       tableData: [],
       priceData: [],
       productData: [],
       picUrl: null,
       institutions: [
-        { value: '支付宝' },
-        { value: '中国银行' },
-        { value: '中国工商银行' },
-        { value: '中国农业银行' },
-        { value: '中国建设银行' },
-        { value: '中国进出口银行' },
-        { value: '中国农业发展银行' },
-        { value: '国家开发银行' },
-        { value: '中国光大银行' },
-        { value: '中国民生银行' },
-        { value: '广发银行' },
-        { value: '平安银行' },
-        { value: '中信银行' },
-        { value: '恒丰银行' },
-        { value: '交通银行' },
-        { value: '招商银行' },
-        { value: '浙商银行' },
-        { value: '兴业银行' },
-        { value: '上海浦东发展银行' },
-        { value: '城市商业银行' },
-        { value: '农村商业银行' },
-        { value: '农村信用社' },
-        { value: '邮政储蓄银行' },
-        { value: '渤海银行' },
-        { value: '徽商银行' },
-        { value: '村镇银行' },
-        { value: '重庆三峡银行' },
-        { value: '农村合作银行' },
-        { value: '城市信用社' },
-        { value: '花旗银行' },
-        { value: '汇丰银行' },
-        { value: '恒生银行' },
-        { value: '上海农村商业银行' },
-        { value: '永亨银行' },
-        { value: '渣打银行' },
-        { value: '上海银行' },
-        { value: '东亚银行' },
-        { value: '星展银行' },
-        { value: '创兴银行' },
-        { value: '永隆银行' },
-        { value: '大新银行' },
-        { value: '首都银行' },
-        { value: '中央结算公司' },
-        { value: '厦门国际银行' },
-        { value: '民营银行' },
-        { value: '盘谷银行' },
-        { value: '澳新银行' },
-        { value: '国泰世华' }
+        { value: "支付宝" },
+        { value: "中国银行" },
+        { value: "中国工商银行" },
+        { value: "中国农业银行" },
+        { value: "中国建设银行" },
+        { value: "中国进出口银行" },
+        { value: "中国农业发展银行" },
+        { value: "国家开发银行" },
+        { value: "中国光大银行" },
+        { value: "中国民生银行" },
+        { value: "广发银行" },
+        { value: "平安银行" },
+        { value: "中信银行" },
+        { value: "恒丰银行" },
+        { value: "交通银行" },
+        { value: "招商银行" },
+        { value: "浙商银行" },
+        { value: "兴业银行" },
+        { value: "上海浦东发展银行" },
+        { value: "城市商业银行" },
+        { value: "农村商业银行" },
+        { value: "农村信用社" },
+        { value: "邮政储蓄银行" },
+        { value: "渤海银行" },
+        { value: "徽商银行" },
+        { value: "村镇银行" },
+        { value: "重庆三峡银行" },
+        { value: "农村合作银行" },
+        { value: "城市信用社" },
+        { value: "花旗银行" },
+        { value: "汇丰银行" },
+        { value: "恒生银行" },
+        { value: "上海农村商业银行" },
+        { value: "永亨银行" },
+        { value: "渣打银行" },
+        { value: "上海银行" },
+        { value: "东亚银行" },
+        { value: "星展银行" },
+        { value: "创兴银行" },
+        { value: "永隆银行" },
+        { value: "大新银行" },
+        { value: "首都银行" },
+        { value: "中央结算公司" },
+        { value: "厦门国际银行" },
+        { value: "民营银行" },
+        { value: "盘谷银行" },
+        { value: "澳新银行" },
+        { value: "国泰世华" }
       ],
       addSettlementAccount: {
         institution: null,
@@ -383,337 +383,62 @@ export default {
         name: null,
         accountBank: null
       }
-    }
+    };
   },
   created() {
-    this.formInline.roleName = 'Consign'
-    this.getlist()
-    this.getbalance()
-    this.setRoleList()
+    this.formInline.roleName = "Consign";
+    this.getlist();
+    // this.getbalance();
+    // this.setRoleList();
   },
   methods: {
-    handleClick(tab, event){
-      this.formInline.roleName = this.activeName
-      this.formInline.page = 1
-      this.getlist()
-    },
-    handleSizeChange(val) {
-      this.formInline.limit = val
-      this.getlist()
-    },
-    showImg(val){
-      this.picUrl = val
-      this.picVisible = true
-    },
-    handleCurrentChange(val) {
-      this.formInline.page = val
-      this.getlist()
-    },
-    chandleSizeChange(val) {
-      this.formInPrice.limit = val
-      this.getUserPrice()
-    },
-    chandleCurrentChange(val) {
-      this.formInPrice.page = val
-      this.getUserPrice()
-    },
-    productSizeChange(val) {
-      this.formInPrice.limit = val
-      this.getUserPrice()
-    },
-    productCurrentChange(val) {
-      this.formInPrice.page = val
-      this.getUserPrice()
-    },
-    onSubmit() {
-      this.getlist()
-      this.getbalance()
-    },
-    onReset() {
-      this.formInline.userName = null
-      this.formInline.state = null
-      this.getlist()
-    },
+    //获取寄售用户数据
     getlist() {
-      this.loading = true
-      var data = this.formInline
+      this.loading = true;
+      var data = {
+        page: this.formInline.page,
+        limit: this.formInline.limit,
+        isEnabled: this.formInline.state,
+        userName: this.formInline.userName,
+        roleName: this.activeName
+      };
       getUsers(data).then(res => {
-        if (res.code === 0) {
-          this.tableData = res.data
-          this.formInline.total = res.count
-        }
-        this.loading = false
-      }).catch(() => {
-        this.loading = false
-      })
-    },
-    setRoleList(){
-      getRoles().then(res => {
-        if (res.code === 0) {
-          this.roleList = res.data
-        }
-      }).catch(() => {
-      })
-    },
-    OpenUserRole(row){
-      this.formInRole.userId = row.id
-      getRoleByID(row.id).then(res => {
-        if (res.code === 0) {
-          this.formInRole.Ids = res.data
-          this.oldRoles = res.data
-        }
-        this.roleVisible  = true
-      }).catch(() => {
-      })
-    },    
-    setRole(){
-      if(this.formInRole.Ids == [] || this.formInRole.Ids == null || this.formInRole.Ids.length < 1){
-        this.$message.error('请选择需要设置得角色');
-        return;
-      }
-      if(this.formInRole.Ids == this.oldRoles){
-        this.$message.error('角色设置未做任何改变');
-        return;
-      }
-      this.setRoleLoading = true
-      updateUserRole(this.formInRole).then(res => {
-        if (res.code === 0) {
-          this.$message.success('角色设置成功')
-          this.roleVisible = false
-        }
-        this.setRoleLoading = false
-      }).catch(() => {
-        this.setRoleLoading = false
-      })
-    },
-    openidentity(row) {
-      this.formIdentity = {
-        idCard: null,
-        idImgFront: null,
-        idImgBack: null,
-        idImgHold: null
-      }
-      getverification(row.id).then(res => {
-        if (res.code === 0) {
-          if (res.data == undefined) {
-            this.$message({
-              message: '该用户没有实名验证信息！！',
-              type: 'info'
-            })
+        console.log(res);
+        if (res.code == 0) {
+          if (res.total > 0) {
+            this.tableData = res.item;
+            this.formInline.total = res.total;
           } else {
-            this.hasConsign = row.canConsign
-            this.identityVisible = true
-            this.formIdentity = res.data
+            this.tableData = [];
+            this.formInline.total = 0;
+            this.emptytext = "暂无数据";
           }
         }
-      })
-    },
-    openAccount(row){
-      this.formInAccount.userId = row.id
-      this.formInAccount.name = row.realName
-      getAccounts(this.formInAccount.userId).then(res => {
-        if (res.code === 0) {
-          this.formInAccount.accounts = res.data
-        }
-      })
-      this.accountVisible = true
-    },
-    openAddAccount(){
-      this.addAccountVisible = true
-    },
-    submitAccount(){
-      if(this.addSettlementAccount.account == null || this.addSettlementAccount.institution == null || this.addSettlementAccount.accountBank == null){
-        this.$message.error('机构/开户行/开户账号不能为空')
-        return
-      }
-      this.accountAddLoading = true
-      this.addSettlementAccount.userId = this.formInAccount.userId;
-      this.addSettlementAccount.name = this.formInAccount.name;
-      addAccount(this.addSettlementAccount).then(res => {
-        if (res.code === 0) {
-          this.$message.success("添加账号成功")
-        }
-        this.addSettlementAccount = {
-          institution: null,
-          account: null,
-          userId: null,
-          name: null,
-          accountBank: null
-        }
-        getAccounts(this.formInAccount.userId).then(res => {
-          if (res.code === 0) {
-            this.formInAccount.accounts = res.data
-          }
-        })
-        this.accountAddLoading = false
-        this.addAccountVisible = false
-      }).catch(()=>{
-        this.accountAddLoading = false
-        this.addAccountVisible = false
       });
+      this.loading = false;
     },
-    deleteInfo(row, index) {
-      this.formInfo = row
-      this.$confirm('是否删除开户行为[' + row.accountBank + ']的账号?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        deleteAccount({id:row.id, state:false, userId: this.formInAccount.userId}).then(res => {
-          if (res.code === 0) {
-            this.$message({
-              message: '删除成功！',
-              type: 'success'
-            })
-          } else {
-            this.$message.error('删除失败！')
-          }
-        })
-        getAccounts(this.formInAccount.userId).then(res => {
-          if (res.code === 0) {
-            this.formInAccount.accounts = res.data
-          }
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        })
-      })
+    //onSubmit提交查询
+    onSubmit() {
+      this.getlist();
     },
-    getbalance() {
-      var data = this.formInline
-      GetBalances(data).then(res => {
-        if (res.code === 0) {
-          this.balances = res.data
-        }
-      })
+    //handleClick指定当前选中的标签页。
+    handleClick(tab, event) {
+      this.formInline.roleName = this.activeName;
+      this.formInline.page = 1;
+      this.getlist();
     },
-    editUserState(index, row) {
-      var obj = { Id: row.id, State: row.isEnabled }
-      updateUserState(obj).then(res => {
-        if (res.code === 0) {
-          this.$message({
-            message: '修改用户状态成功！',
-            type: 'success'
-          })
-        }
-      })
+    //分页
+    handleCurrentChange(val) {
+      this.formInline.page = val;
+      this.getlist();
     },
-    editConsignState(index, row) {
-      var obj = { Id: row.id, State: row.canConsign }
-      updateConsignState(obj).then(res => {
-        if (res.code === 0) {
-          this.$message({
-            message: '修改用户寄售权限成功！',
-            type: 'success'
-          })
-        }
-      })
-    },
-    editChannelConsignState(index, row) {
-      var obj = {
-        channelId: row.id,
-        State: row.canConsign,
-        userId: this.formInPrice.userId
-      }
-      updateUserChannelConsignState(obj).then(res => {
-        if (res.code === 0) {
-          this.$message({
-            message: '修改用户通道寄售权限成功！',
-            type: 'success'
-          })
-        }
-      })
-    },
-    editPrice(index, row) {
-      if (!row.canConsign) {
-        this.$message.error(
-          '当前通道寄售的权限未打开，请打开寄售权限后再调整费率'
-        )
-      } else {
-        if (row.buyRate < 50 || row.buyRate > 100) {
-          this.$message.error('费率输入有误，必须为50-100之间的数值')
-        } else {
-          var obj = {
-            channelId: row.id,
-            userId: this.formInPrice.userId,
-            buyRate: row.buyRate
-          }
-          updateUserBuyRate(obj).then(res => {
-            if (res.code === 0) {
-              this.$message({
-                message: '修改用户通道费率成功！',
-                type: 'success'
-              })
-            }
-          })
-        }
-      }
-    },
-    editApiState(val) {
-      var obj = { Id: this.formInApi.id, State: val }
-      updateApiState(obj).then(res => {
-        if (res.code === 0) {
-          this.$message({
-            message: '修改用户API权限成功！',
-            type: 'success'
-          })
-        }
-      })
-    },
-    goPages(type, row) {
-      var name = type === 1 ? '/card/cards' : '/finance/settlements'
-      this.$router.push({ path: name, params: { userName: row.userName }})
-    },
-    openPages(row) {
-      this.speciaPriceVisible = true
-      this.childloading = true
-      this.formInPrice.userId = row.id
-      this.formInPrice.userName = '给[' + row.userName + ']的密价'
-      this.getUserPrice()
-    },
-    getUserPrice() {
-      var data = this.formInPrice
-      getUserPrice(data).then(res => {
-        if (res.code === 0 && res.data != null && res.data.length > 0) {
-          this.priceData = res.data
-          this.priceData.forEach((row, index) => {
-            row.editFlag = false
-          })
-          this.formInPrice.total = res.count
-        }
-        this.childloading = false
-      }).catch(() => {
-        this.childloading = false
-      })
-    },
-    openApi(row) {
-      this.formInApi.userId = row.id
-      getApiInfo({ id: this.formInApi.userId }).then(res => {
-        if (res.code === 0 && res.data) {
-          this.apiVisible = true
-          this.formInApi = res.data
-        } else {
-          this.$confirm('该帐号的API权限未开启，是否启用', '提示', {
-            confirmButtonText: '启用',
-            cancelButtonText: '取消',
-            type: 'warning'
-          }).then(() => {
-            addApi({ id: this.formInApi.userId }).then(res => {
-              if (res.code === 0) {
-                this.$message({
-                  message: '新增用户API权限成功！',
-                  type: 'success'
-                })
-              }
-            })
-          }).catch(() => {})
-        }
-      })
+    //每页显示多少
+    handleSizeChange(val) {
+      this.formInline.limit = val;
+      this.getlist();
     }
   }
-}
+};
 </script>
 <style>
 .pricediv .el-dialog {

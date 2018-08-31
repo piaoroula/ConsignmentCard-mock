@@ -131,9 +131,7 @@ export default {
         startTime: null
       };
     },
-    onSubmit() {
-      this.getlist();
-    },
+
     //获取财务审计数据
     getlist() {
       this.loading = true;
@@ -143,12 +141,14 @@ export default {
         ),
         endTime: moment(this.formInline.times[1]).format("YYYY-MM-DD HH:mm:ss"),
         userNameOrId: this.formInline.userNameOrId,
+        type: this.formInline.type,
         classify: this.formInline.classify,
         page: this.formInline.page,
         limit: this.formInline.limit
       };
       getFinances(data)
         .then(res => {
+          console.log(res);
           if (res.code == 0) {
             if (res.total > 0) {
               this.tableData = res.item;
@@ -177,6 +177,10 @@ export default {
         .catch(() => {
           this.loading = false;
         });
+    },
+    //搜索
+    onSubmit() {
+      this.getlist();
     }
   }
 };

@@ -18,6 +18,13 @@ for (var i = 0; i < count; i++) {
 }
 export default {
   getFinanceDetail: config => {
+    financeDetailData.forEach(item => {
+      if (item.classify == 2) {
+        item.type = 0
+      } else if (item.classify == 0 || item.classify == 1 || item.classify == 3) {
+        item.type = 1
+      }
+    })
     const { beginTime, endTime, type, classify, page = 1, limit = 20 } = JSON.parse(config.body)
     let mockList = financeDetailData.filter(item => {
       if (beginTime && item.creationTime < beginTime) return false

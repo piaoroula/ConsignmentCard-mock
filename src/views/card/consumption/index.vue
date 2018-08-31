@@ -13,7 +13,7 @@
         <el-table-column prop="name" align="center" label="渠道名称"> </el-table-column>
         <el-table-column label="状态" align="center" width="140px">
           <template slot-scope="scope">
-            <el-switch v-model="scope.row.isOpen" aria-readonly="true" on-value='true' of-value='' active-text="正常" inactive-text="禁用" disabled></el-switch>
+            <el-switch v-model="scope.row.isOpen" aria-readonly="true" active-value='true' inactive-value='false' active-text="正常" inactive-text="禁用" disabled></el-switch>
           </template>
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="120">

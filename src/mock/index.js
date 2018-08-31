@@ -17,6 +17,7 @@ import detailAPI from './finance/detail'
 import settlementrecordAPI from './finance/settlementrecord'
 import settlementsAPI from './finance/settlements'
 import financesAPI from './finance/finances'
+import usersAPI from './system/users'
 // Mock.setup({
 //   timeout: '350-600'
 // })
@@ -103,7 +104,11 @@ Mock.mock(/\/api\/Manage\/GetSettlementAccount/, 'get', settlementsAPI.getSettle
 
 
 //财务审计
-Mock.mock(/\/api\/Manage\/GetFinances/, 'get', financesAPI.getFinancesData)
+Mock.mock(/\/api\/Manage\/GetFinances/, 'post', financesAPI.getFinancesData)
+
+
+//系统管理
+Mock.mock(/\/api\/Manage\/GetUsers/, 'post', usersAPI.getusersData)
 
 
 
