@@ -9,21 +9,27 @@ channelsData.push(
     name: "移动充值卡",
     buyRate: 20,
     privates: true,
-    state: true
+    state: true,
+    canConsign: false,
+    editFlag: false
   },
   {
     id: 1,
     name: "联通充值卡",
     buyRate: 30,
     privates: true,
-    state: true
+    state: true,
+    canConsign: true,
+    editFlag: false
   },
   {
     id: 2,
     name: "电信全国充值卡",
     buyRate: 40,
     privates: false,
-    state: false
+    state: false,
+    canConsign: false,
+    editFlag: false
   }
 )
 // for (var i = 0; i < count; i++) {
@@ -156,3 +162,4 @@ export default {
     return data
   }
 }
+export { channelsData }

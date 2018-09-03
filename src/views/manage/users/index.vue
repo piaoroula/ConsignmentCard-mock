@@ -31,17 +31,17 @@
         <el-table-column prop='balance' align="center" label='余额' width='120px'> </el-table-column>
         <el-table-column label='可寄售' align="center" width='110px' style='text-align:center;'>
           <template slot-scope='scope'>
-            <el-switch v-model='scope.row.canConsign' @change="editConsignState(scope.$index,scope.row)" on-value=true of-value=false active-text='是' inactive-text='否'></el-switch>
+            <el-switch v-model='scope.row.canConsign' @change="editConsignState(scope.$index,scope.row)" active-text='是' inactive-text='否'></el-switch>
           </template>
         </el-table-column>
-        <el-table-column prop='state' align="center" label='账号状态' width='140px'>
+        <el-table-column align="center" label='账号状态' width='140px'>
           <template slot-scope='scope'>
-            <el-switch v-model='scope.row.isEnabled' @change="editUserState(scope.$index,scope.row)" active-value=true inactive-value=false active-text='正常' inactive-text='禁用'></el-switch>
+            <el-switch v-model='scope.row.isEnabled' @change="editUserState(scope.$index,scope.row)" active-text='正常' inactive-text='禁用'></el-switch>
           </template>
         </el-table-column>
         <el-table-column label='操作' width='150px' align="center" fixed='right'>
           <template slot-scope='scope'>
-            <el-dropdown :hide-on-click="false" trigger="click" style="cursor:pointer">
+            <el-dropdown :hide-on-click="false" zhangtrigger="click" style="cursor:pointer">
               <span class="el-dropdown-link">
                 操作
                 <i class="el-icon-arrow-down el-icon--right"></i>
@@ -62,7 +62,7 @@
                 <el-dropdown-item v-if="activeName=='Consign'">
                   <span @click="goPages(2, scope.row)">提现记录</span>
                 </el-dropdown-item>
-                <el-dropdown-item>
+                <el-dropdown-item v-if="this.activeName=='Consign'||this.activeName=='Order'">
                   <span @click="openPages(scope.row)">密价</span>
                 </el-dropdown-item>
                 <el-dropdown-item v-if="activeName=='Consign'">
@@ -104,15 +104,15 @@
       <el-dialog :title="formInProduct.userName" :visible.sync="productVisible">
         <el-table :data="productData" v-loading="productloading" element-loading-text="拼命加载中" element-loading-spinner="el-icon-loading" :empty-text="emptytext" border style="width: 100%">
           <el-table-column prop="id" align="center" label="编号"></el-table-column>
-          <el-table-column prop="name" align="center" label="通道名称"></el-table-column>
-          <el-table-column prop="buyRate" align="center" label="费率">
+          <el-table-column prop="name" align="center" label="产品名称"></el-table-column>
+          <el-table-column prop="price" align="center" label="价格">
             <template slot-scope='scope'>
-              <el-input v-model="scope.row.buyRate" @blur="editPrice(scope.$index,scope.row)" placeholder="请输入费率"></el-input>
+              <el-input v-model="scope.row.price" @blur="editPrice(scope.$index,scope.row)" placeholder="请输入价格"></el-input>
             </template>
           </el-table-column>
-          <el-table-column label='寄售权限' align="center">
+          <el-table-column label='订单权限' align="center">
             <template slot-scope='scope'>
-              <el-switch v-model='scope.row.canConsign' @change="editChannelConsignState(scope.$index,scope.row)" active-text='有' inactive-text='无'></el-switch>
+              <el-switch v-model='scope.row.canOrder' @change="editProductOrderState(scope.$index,scope.row)" active-text='有' inactive-text='无'></el-switch>
             </template>
           </el-table-column>
         </el-table>
@@ -233,7 +233,9 @@ import {
   updateUserState,
   updateConsignState,
   getUserPrice,
+  getUserProductPrice,
   updateUserChannelConsignState,
+  updateUserProductOrderState,
   updateUserBuyRate,
   getApiInfo,
   updateApiState,
@@ -316,8 +318,8 @@ export default {
       emptytext: "暂无数据",
       states: [
         { id: null, name: "请选择账号状态" },
-        { id: 1, name: "正常" },
-        { id: 0, name: "禁用" }
+        { id: true, name: "正常" },
+        { id: false, name: "禁用" }
       ],
       formInRole: { userId: null, Ids: [] },
       oldRoles: [],
@@ -388,6 +390,8 @@ export default {
   created() {
     this.formInline.roleName = "Consign";
     this.getlist();
+    this.getUserProduct();
+    this.getUserPriceData();
     // this.getbalance();
     // this.setRoleList();
   },
@@ -417,8 +421,173 @@ export default {
       });
       this.loading = false;
     },
+    //修改可寄售状态
+    editConsignState(index, row) {
+      var data = {
+        id: row.id,
+        canConsign: row.canConsign
+      };
+      updateConsignState(data).then(res => {
+        if (res.code == 0) {
+          this.$message.success(res.msg);
+        } else {
+          this.$message.error(res.msg);
+        }
+      });
+    },
+    //修改账号状态
+    editUserState(index, row) {
+      var data = {
+        id: row.id,
+        isEnabled: row.isEnabled
+      };
+      updateUserState(data).then(res => {
+        if (res.code == 0) {
+          this.$message.success(res.msg);
+        } else {
+          this.$message.error(res.msg);
+        }
+      });
+    },
+    //获取收款账号信息
+    // openAccount(row) {
+    //   this.accountVisible = true;
+    //   getSettlementAccount(row.id).then(res => {
+    //     if (res.code == 0) {
+    //       this.formAccount = row;
+    //     } else {
+    //       this.$message.error(res.msg);
+    //     }
+    //   });
+    // },
+    //身份验证
+    //获取寄售明细
+    goPages(type, row) {
+      if (type == 1) {
+        this.$router.push({ path: "/card/cards" });
+      } else {
+        this.$router.push({ path: "/finance/settlements" });
+      }
+    },
+    //密价弹窗口
+    openPages(row) {
+      //获取用户的userID
+      this.formInPrice.userId = row.id;
+      this.formInPrice.userName = row.realName;
+      if (this.activeName == "Consign") {
+        this.speciaPriceVisible = true;
+        this.getUserPriceData();
+      } else if (this.activeName == "Order") {
+        this.productVisible = true;
+        this.getUserProduct();
+      }
+    },
+    //获取寄售用户的密价数据
+    getUserPriceData() {
+      var data = {
+        limit: this.formInPrice.limit,
+        page: this.formInPrice.page
+      };
+      this.childloading = true;
+      getUserPrice(data)
+        .then(res => {
+          if (res.code == 0) {
+            if (res.total > 0) {
+              this.priceData = res.data;
+              this.formInPrice.total = res.total;
+            } else {
+              this.tableData = 0;
+              this.formInPrice.total = 0;
+              this.emptytext = "暂无数据";
+            }
+          }
+          this.childloading = false;
+        })
+        .catch(() => {
+          this.childloading = false;
+        });
+    },
+    //获取订单用户密价数据
+    getUserProduct() {
+      var data = {
+        limit: this.formInProduct.limit,
+        page: this.formInProduct.page
+      };
+      this.productloading = true;
+      getUserProductPrice(data)
+        .then(res => {
+          if (res.code == 0) {
+            if (res.total > 0) {
+              this.productData = res.data;
+              this.formInProduct.total = res.total;
+            } else {
+              this.productData = [];
+              this.formInProduct.total = 0;
+              this.emptytext = "暂无数据";
+            }
+          }
+          this.productloading = false;
+        })
+        .catch(() => {
+          this.productloading = false;
+        });
+    },
+    //修改寄售用户密价的权限
+    editChannelConsignState(index, row) {
+      var data = {
+        channelId: row.id,
+        canConsign: row.canConsign,
+        userId: this.formInPrice.userId
+      };
+      updateUserChannelConsignState(data).then(res => {
+        if (res.code == 0) {
+          this.$message.success(
+            "用户" + this.formInPrice.userName + "的寄售权限修改成功"
+          );
+        } else {
+          this.$message.error(res.msg);
+        }
+      });
+    },
+    //修改订单用户的权限editProductOrderState
+    editProductOrderState(index, row) {
+      var data = {
+        productId: row.id,
+        canOrder: row.canOrder,
+        userId: this.formInPrice.userId
+      };
+      updateUserProductOrderState(data).then(res => {
+        if (res.code == 0) {
+          this.$message.success(
+            "用户" + this.formInPrice.userName + "的寄售权限修改成功"
+          );
+        } else {
+          this.$message.error(res.msg);
+        }
+      });
+    },
+    //打开角色列表弹窗口
+    OpenUserRole(index, row) {
+      this.roleVisible = true;
+      this.formInRole.userId = row.id;
+      getRoles().then(res => {
+        if (res.code == 0) {
+          this.roleList = res.roleData;
+        }
+      });
+    },
+    //设置""其他用户的角色"
+    setRole() {
+      this.setRoleLoading = true;
+    },
+    //API权限
     //onSubmit提交查询
     onSubmit() {
+      this.getlist();
+    },
+    //重置
+    onReset() {
+      this.formInline = {};
       this.getlist();
     },
     //handleClick指定当前选中的标签页。
@@ -436,13 +605,35 @@ export default {
     handleSizeChange(val) {
       this.formInline.limit = val;
       this.getlist();
+    },
+    //订单用户密价弹框分页显示
+    //分页
+    productCurrentChange(val) {
+      this.formInProduct.page = val;
+      this.getUserProduct();
+    },
+    //每页显示多少
+    productSizeChange(val) {
+      this.formInProduct.limit = val;
+      this.getUserProduct();
+    },
+    //寄售用户密价弹框分页显示
+    //分页
+    chandleCurrentChange(val) {
+      this.formInPrice.page = val;
+      this.getUserPriceData();
+    },
+    //每页显示多少
+    chandleSizeChange(val) {
+      this.formInPrice.limit = val;
+      this.getUserPriceData();
     }
   }
 };
 </script>
 <style>
 .pricediv .el-dialog {
-  width: 650px;
+  width: 760px;
   height: 550px;
   top: 5% !important;
   margin-top: 0px !important;

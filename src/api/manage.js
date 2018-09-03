@@ -125,6 +125,15 @@ export function getUserPrice(data) {
   })
 }
 
+export function getUserProductPrice(data) {
+  return request({
+    url: '/api/Manage/GetUserProductPrice',
+    method: 'post',
+    data
+  })
+}
+
+
 export function updateUserChannelConsignState(data) {
   return request({
     url: '/api/Manage/UpdateUserChannelConsignState',

@@ -18,6 +18,7 @@ import settlementrecordAPI from './finance/settlementrecord'
 import settlementsAPI from './finance/settlements'
 import financesAPI from './finance/finances'
 import usersAPI from './system/users'
+import roleAPI from './system/role'
 // Mock.setup({
 //   timeout: '350-600'
 // })
@@ -109,8 +110,14 @@ Mock.mock(/\/api\/Manage\/GetFinances/, 'post', financesAPI.getFinancesData)
 
 //系统管理
 Mock.mock(/\/api\/Manage\/GetUsers/, 'post', usersAPI.getusersData)
-
-
+Mock.mock(/\/api\/Manage\/UpdateUserState/, 'post', usersAPI.changeUserState)
+Mock.mock(/\/api\/Manage\/UpdateConsignState/, 'post', usersAPI.changeConsignState)
+Mock.mock(/\/api\/Manage\/updateConsignState/, 'post', usersAPI.getAccountInf)
+Mock.mock(/\/api\/Manage\/getUserPrice/, 'post', usersAPI.getPriceData)
+Mock.mock(/\/api\/Manage\/GetUserProductPrice/, 'post', usersAPI.getPoductData)
+Mock.mock(/\/api\/Manage\/UpdateUserChannelConsignState/, 'post', usersAPI.UserChannelConsignState)
+Mock.mock(/\/api\/Manage\/UpdateUserProductOrderState/, 'post', usersAPI.ProductOrderState)
+Mock.mock(/\/api\/Manage\/GetRoles/, 'get', roleAPI.getRoleList)
 
 // 搜索相关
 Mock.mock(/\/search\/user/, 'get', remoteSearchAPI.searchUser)
