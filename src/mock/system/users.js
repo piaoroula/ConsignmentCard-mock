@@ -15,10 +15,10 @@ for (var i = 0; i < count; i++) {
     'realName': '@cname()',
     'email': '@email()',
     'emailConfirmed|1': [true, false],
-    'phoneNumber': null,
+    'phoneNumber|1': /^1[0-9]{10}$/,
     'phoneNumberConfirmed|1': [true, false],
     'isEnabled|1': [true, false],
-    'canConsign|1': [true, false],
+    'canConsign': false,
     'balance': '@integer(60, 100)',
   }))
 }
@@ -30,30 +30,44 @@ OrderUsersData.push({
   'phoneNumber': 15071314242,
   'phoneNumberConfirmed': true,
   'isEnabled': false,
-  'canConsign': true,
+  'canConsign': false,
   'balance': 2700,
 })
-OtherUsersData.push({
-  'id': 145,
-  'realName': '王五',
-  'email': '1123456523@qq.com',
-  'emailConfirmed': true,
-  'phoneNumber': 15071314242,
-  'phoneNumberConfirmed': true,
-  'isEnabled': false,
-  'canConsign': true,
-  'balance': 50,
-}, {
-    'id': 146,
-    'realName': '小王',
-    'email': '2123456533@qq.com',
-    'emailConfirmed': true,
-    'phoneNumber': 15071314242,
-    'phoneNumberConfirmed': true,
-    'isEnabled': false,
-    'canConsign': true,
-    'balance': 60,
-  })
+for (var i = 108; i < 115; i++) {
+  OtherUsersData.push(Mock.mock({
+    'id': i,
+    'realName': '@cname()',
+    'email': '@email()',
+    'emailConfirmed|1': [true, false],
+    'phoneNumber|1': /^1[0-9]{10}$/,
+    'phoneNumberConfirmed|1': [true, false],
+    'isEnabled|1': [true, false],
+    'canConsign': false,
+    'balance': '@integer(60, 100)',
+    'roles|1': ['ConsignManage', 'Consign', 'ConsignManage', 'OrderManage', 'SuperManage'],//1=>ConsignManage，2=>Consign，3=>ConsignManage，4=>OrderManage，5=>SuperManage
+  }))
+}
+// OtherUsersData.forEach(item => {
+//   item.roles.forEach(role => {
+//     switch (role.id) {
+//       case 1:
+//         role.name = 'ConsignManage';
+//         break;
+//       case 2:
+//         role.name = 'Consign';
+//         break;
+//       case 3:
+//         role.name = 'Order';
+//         break;
+//       case 4:
+//         role.name = 'OrderManage';
+//         break;
+//       case 5:
+//         role.name = 'SuperManage';
+//         break;
+//     }
+//   })
+// })
 
 for (var i = 0; i < count; i++) {
   productData.push(Mock.mock({
@@ -100,10 +114,9 @@ export default {
         UsersData = OtherUsersData
         break;
     }
+    var balances = 0
     UsersData.forEach(item => {
-      if (item.phoneNumberConfirmed == true) {
-        item.phoneNumber = 15071314242
-      } else {
+      if (item.phoneNumberConfirmed == false) {
         item.phoneNumber = null
       }
       if (item.emailConfirmed == false) {
@@ -112,15 +125,22 @@ export default {
     })
     let mockList = UsersData.filter(item => {
       if (userName && item.realName.indexOf(userName) < 0 && item.email !== userName) return false
-
-      if (isEnabled && item.isEnabled !== isEnabled) return false
+      if (JSON.parse(config.body).isEnabled == null) {
+        return true
+      } else if (JSON.parse(config.body).isEnabled !== null) {
+        if (item.isEnabled !== JSON.parse(config.body).isEnabled) return false
+      }
       return true
+    })
+    mockList.forEach(item => {
+      balances += item.balance
     })
     const pageList = mockList.filter((item, index) => index < limit * page && index >= limit * (page - 1))
     return {
       code: 0,
       total: mockList.length,
-      item: pageList
+      item: pageList,
+      balances
     }
   },
   //修改可寄售状态
@@ -250,15 +270,7 @@ export default {
     })
     return data
   },
-  //获取角色列表
-  getRoleList: config => {
-    return {
-      code: 0,
-      roleData,
-      msg: '获取成功'
-    }
-  }
   //API权限
 
 }
-export { UsersData }
+export { UsersData, count }

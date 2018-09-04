@@ -29,11 +29,11 @@
         <el-table-column prop='email' align="center" label='邮箱'> </el-table-column>
         <el-table-column prop='phoneNumber' align="center" label='手机号' width='120px'> </el-table-column>
         <el-table-column prop='balance' align="center" label='余额' width='120px'> </el-table-column>
-        <el-table-column label='可寄售' align="center" width='110px' style='text-align:center;'>
+        <!-- <el-table-column label='可寄售' align="center" width='110px' style='text-align:center;'>
           <template slot-scope='scope'>
-            <el-switch v-model='scope.row.canConsign' @change="editConsignState(scope.$index,scope.row)" active-text='是' inactive-text='否'></el-switch>
+            <el-switch v-model='scope.row.canConsign' @change="editConsignState(scope.$index,scope.row)" active-text='是' inactive-text='否' :disabled="editDisabled"></el-switch>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column align="center" label='账号状态' width='140px'>
           <template slot-scope='scope'>
             <el-switch v-model='scope.row.isEnabled' @change="editUserState(scope.$index,scope.row)" active-text='正常' inactive-text='禁用'></el-switch>
@@ -160,6 +160,9 @@
           <el-form-item label="手持身份证件照">
             <a @click="showImg(formIdentity.idImgHold)"><img :src="formIdentity.idImgHold" width="308" height="175" /></a>
           </el-form-item>
+          <el-form-item label="身份验证">
+            <el-switch v-model="hasConsign" active-text='通过' @change="editApiState" inactive-text='不通过'></el-switch>
+          </el-form-item>
         </el-form>
       </el-dialog>
     </div>
@@ -168,7 +171,8 @@
         <el-form ref="form" :model="formInRole" label-width="80px">
           <el-form-item label="设置角色">
             <el-checkbox-group v-model="formInRole.Ids" size="mini">
-              <el-checkbox v-for="role in roleList" :label="role.id" :key="role.id">{{role.name}}</el-checkbox>
+              <el-checkbox v-for="role in roleList" :label="role.name" :key="role.id" :value="role.id" :checked="checked" @change="checked=!checked"></el-checkbox>
+
             </el-checkbox-group>
           </el-form-item>
           <el-form-item>
@@ -249,7 +253,6 @@ import {
   addAccount,
   deleteAccount
 } from "@/api/manage";
-
 export default {
   name: "users",
   computed: {
@@ -291,7 +294,7 @@ export default {
         state: null
       },
       formIdentity: {
-        idCard: null,
+        idCard: "",
         idImgFront: null,
         idImgBack: null,
         idImgHold: null
@@ -315,13 +318,18 @@ export default {
       childloading: false,
       productloading: false,
       identityVisible: false,
+      editDisabled: true,
       emptytext: "暂无数据",
       states: [
         { id: null, name: "请选择账号状态" },
         { id: true, name: "正常" },
         { id: false, name: "禁用" }
       ],
-      formInRole: { userId: null, Ids: [] },
+      formInRole: {
+        userId: null,
+        userName: null,
+        Ids: []
+      },
       oldRoles: [],
       roleList: [],
       tableData: [],
@@ -389,11 +397,12 @@ export default {
   },
   created() {
     this.formInline.roleName = "Consign";
+
     this.getlist();
     this.getUserProduct();
     this.getUserPriceData();
     // this.getbalance();
-    // this.setRoleList();
+    this.setRoleList();
   },
   methods: {
     //获取寄售用户数据
@@ -412,6 +421,7 @@ export default {
           if (res.total > 0) {
             this.tableData = res.item;
             this.formInline.total = res.total;
+            this.balances = res.balances;
           } else {
             this.tableData = [];
             this.formInline.total = 0;
@@ -420,20 +430,6 @@ export default {
         }
       });
       this.loading = false;
-    },
-    //修改可寄售状态
-    editConsignState(index, row) {
-      var data = {
-        id: row.id,
-        canConsign: row.canConsign
-      };
-      updateConsignState(data).then(res => {
-        if (res.code == 0) {
-          this.$message.success(res.msg);
-        } else {
-          this.$message.error(res.msg);
-        }
-      });
     },
     //修改账号状态
     editUserState(index, row) {
@@ -460,7 +456,6 @@ export default {
     //     }
     //   });
     // },
-    //身份验证
     //获取寄售明细
     goPages(type, row) {
       if (type == 1) {
@@ -539,6 +534,7 @@ export default {
         canConsign: row.canConsign,
         userId: this.formInPrice.userId
       };
+
       updateUserChannelConsignState(data).then(res => {
         if (res.code == 0) {
           this.$message.success(
@@ -566,21 +562,105 @@ export default {
         }
       });
     },
+    //获取角色列表
     //打开角色列表弹窗口
-    OpenUserRole(index, row) {
-      this.roleVisible = true;
-      this.formInRole.userId = row.id;
+    setRoleList() {
       getRoles().then(res => {
         if (res.code == 0) {
           this.roleList = res.roleData;
         }
       });
     },
+    //打开角色列表弹窗口OpenUserRole
+    OpenUserRole(row) {
+      this.roleVisible = true;
+      this.formInRole.userId = row.id;
+      this.formInline.userName = row.realName;
+      this.formInRole.Ids = row.roles.split(",");
+      console.log(this.formInRole.Ids);
+      this.oldRoles = row.roles.split(",");
+    },
     //设置""其他用户的角色"
     setRole() {
       this.setRoleLoading = true;
+      var data = {
+        id: this.formInRole.userId,
+        roles: this.formInRole.Ids
+      };
+      //JavaScript比较两个数组相等，利用toString
+      if (this.formInRole.Ids.toString() == this.oldRoles.toString()) {
+        this.$message.error("角色未做更改，请重新选择");
+      } else if (this.formInRole.Ids.length < 1) {
+        this.$message.error("角色还未选择，请选择");
+      } else {
+        updateUserRole(data)
+          .then(res => {
+            if (res.code == 0) {
+              this.$notify({
+                title: "成功",
+                message:
+                  "用户" +
+                  this.formInline.userName +
+                  "原状态为" +
+                  this.oldRoles.toString() +
+                  ",现修改为" +
+                  this.formInRole.Ids.toString(),
+                type: "success"
+              });
+              this.roleVisible = false;
+            } else {
+              this.$notify.error({
+                title: "错误",
+                message: res.msg
+              });
+            }
+          })
+          .catch(() => {
+            this.setRoleLoading = false;
+          });
+      }
+      this.setRoleLoading = false;
+    },
+    //身份验证、
+    openidentity(row) {
+      this.identityVisible = true;
+      this.formIdentity.id = row.id;
+      getverification(this.formIdentity.id).then(res => {
+        console.log(res);
+      });
+    },
+    editApiState() {
+      if (this.hasConsign == true) {
+        this.$message.success("身份验证通过");
+        this.editDisabled = true;
+      }
     },
     //API权限
+    openApi(row) {
+      this.$confirm(
+        "用户" + row.realName + "暂时还没有API权限",
+        "是否开通API权限?",
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }
+      )
+        .then(() => {
+          // this.apiVisible = true;
+          this.$message({
+            type: "success",
+            message: "开通API权限成功!"
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消API权限"
+          });
+        });
+    },
     //onSubmit提交查询
     onSubmit() {
       this.getlist();

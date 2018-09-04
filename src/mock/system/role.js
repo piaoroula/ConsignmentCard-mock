@@ -3,6 +3,7 @@ import { param2Obj } from '@/utils'
 import { UsersData } from './users'
 let roleData = []
 let userRoleList = []
+var data
 roleData.push(
   {
     id: 1,
@@ -22,10 +23,8 @@ roleData.push(
     name: "SuperManage"
   }
 )
-//对应用户对应角色
-UsersData.forEach(item => {
 
-})
+
 export default {
   //获取角色列表
   getRoleList: config => {
@@ -35,13 +34,26 @@ export default {
       msg: '获取成功'
     }
   },
+
   //修改角色
   changeRole: config => {
     const { id, roles } = JSON.parse(config.body)
-    // roleData.some(item => {
-    //   if (item.id === id) {
-    //     item.
-    //   }
-    // })
+    UsersData.some(item => {
+      if (item.id === id) {
+        item.roles = roles
+        data = {
+          code: 0,
+          msg: '修改成功'
+        }
+        return true
+      } else {
+        data = {
+          code: 1,
+          msg: '参数错误'
+        }
+        return false
+      }
+    })
+    return data
   }
 } 
