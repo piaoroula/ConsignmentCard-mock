@@ -75,7 +75,7 @@
       </el-table>
     </div>
     <div class='box-card-pagination'>
-      <el-pagination background @size-change='handleSizeChange' @current-change='handleCurrentChange' :current-page='formInline.page' :page-sizes='[10,20,30, 50]' :page-size='formInline.limit' layout='total, sizes, prev, pager, next, jumper' :total='formInline.total'>
+      <el-pagination background @size-change='handleSizeChange' @current-change='handleCurrentChange' :current-page='formInline.page' :page-sizes='[10,20,30, 50]' :page-size='formInline.limit' layout='total, sizes, prev, pager, next, jumper' :total='total'>
       </el-pagination>
     </div>
     <div class="pricediv">
@@ -95,7 +95,7 @@
           </el-table-column>
         </el-table>
         <div class="box-card-pagination" style="margin:20px 0; height:100%;">
-          <el-pagination background @size-change="chandleSizeChange" @current-change="chandleCurrentChange" :current-page="formInPrice.page" :page-sizes="[6]" :page-size="formInPrice.limit" layout="total, sizes, prev, pager, next, jumper" :total="formInPrice.total">
+          <el-pagination background @size-change="chandleSizeChange" @current-change="chandleCurrentChange" :current-page="formInPrice.page" :page-sizes="[6]" :page-size="formInPrice.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
           </el-pagination>
         </div>
       </el-dialog>
@@ -117,7 +117,7 @@
           </el-table-column>
         </el-table>
         <div class="box-card-pagination" style="margin:20px 0; height:100%;">
-          <el-pagination background @size-change="productSizeChange" @current-change="productCurrentChange" :current-page="formInProduct.page" :page-sizes="[6]" :page-size="formInProduct.limit" layout="total, sizes, prev, pager, next, jumper" :total="formInProduct.total">
+          <el-pagination background @size-change="productSizeChange" @current-change="productCurrentChange" :current-page="formInProduct.page" :page-sizes="[6]" :page-size="formInProduct.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
           </el-pagination>
         </div>
       </el-dialog>
@@ -267,25 +267,25 @@ export default {
         roleName: "",
         state: null,
         page: 1,
-        limit: 20,
-        total: 0
+        limit: 20
       },
+      total: 0,
       formInPrice: {
         userId: null,
         userName: null,
         state: null,
-        total: 0,
         page: 1,
         limit: 6
       },
+      total: 0,
       formInProduct: {
         userId: null,
         userName: null,
         state: null,
-        total: 0,
         page: 1,
         limit: 6
       },
+      total: 0,
       formInApi: {
         userId: null,
         id: null,
@@ -420,11 +420,11 @@ export default {
         if (res.code == 0) {
           if (res.total > 0) {
             this.tableData = res.item;
-            this.formInline.total = res.total;
+            this.total = res.total;
             this.balances = res.balances;
           } else {
             this.tableData = [];
-            this.formInline.total = 0;
+            this.total = 0;
             this.emptytext = "暂无数据";
           }
         }
@@ -487,12 +487,13 @@ export default {
       getUserPrice(data)
         .then(res => {
           if (res.code == 0) {
+            console.log(res);
             if (res.total > 0) {
               this.priceData = res.data;
-              this.formInPrice.total = res.total;
+              this.total = res.total;
             } else {
               this.tableData = 0;
-              this.formInPrice.total = 0;
+              this.total = 0;
               this.emptytext = "暂无数据";
             }
           }
@@ -514,10 +515,10 @@ export default {
           if (res.code == 0) {
             if (res.total > 0) {
               this.productData = res.data;
-              this.formInProduct.total = res.total;
+              this.total = res.total;
             } else {
               this.productData = [];
-              this.formInProduct.total = 0;
+              this.total = 0;
               this.emptytext = "暂无数据";
             }
           }
@@ -577,7 +578,6 @@ export default {
       this.formInRole.userId = row.id;
       this.formInline.userName = row.realName;
       this.formInRole.Ids = row.roles.split(",");
-      console.log(this.formInRole.Ids);
       this.oldRoles = row.roles.split(",");
     },
     //设置""其他用户的角色"
@@ -667,8 +667,12 @@ export default {
     },
     //重置
     onReset() {
-      this.formInline = {};
-      this.getlist();
+      this.formInline = {
+        userName: null,
+        roleName: null,
+        state: null
+      };
+      this.$message.success("重置成功");
     },
     //handleClick指定当前选中的标签页。
     handleClick(tab, event) {

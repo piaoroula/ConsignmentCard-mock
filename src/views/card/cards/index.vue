@@ -61,15 +61,9 @@
       <el-table-column prop="consumptionName" align="center" label="消耗渠道" width="80px"> </el-table-column>
       <el-table-column prop="faceValue" align="center" label="寄售面值" width="80px">
       </el-table-column>
-      <el-table-column align="center" label="结算面值" width="80px">
-        <template slot-scope="scope">
-          <span v-if='scope.row.useState==3'>{{scope.row.settlementFaceValue}}</span>
-        </template>
+      <el-table-column prop="settlementFaceValue" align="center" label="结算面值" width="80px">
       </el-table-column>
-      <el-table-column align="center" label="结算金额" width="80px">
-        <template slot-scope="scope">
-          <span v-if='scope.row.useState==3'>{{scope.row.settlementAmount}}</span>
-        </template>
+      <el-table-column prop="settlementAmount" align="center" label="结算金额" width="80px">
       </el-table-column>
       <el-table-column prop="useState" align="center" label="寄售状态">
         <template slot-scope='scope '>
@@ -128,7 +122,7 @@
     <div class="box-card-pagination">
       <el-button type="primary" plain @click="toggleSelection()">取消选择</el-button>
       <el-button type="primary" plain @click="changgeUseState()">批量修改寄售状态</el-button>
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="formInline.page" :page-sizes="[10,20,30, 50]" :page-size="formInline.limit" layout="total, sizes, prev, pager, next, jumper" :total="formInline.total">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="formInline.page" :page-sizes="[10,20,30, 50]" :page-size="formInline.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
     <el-dialog title="修改寄售状态" :visible.sync="editUseStateVisible" label-width="80px">
@@ -236,10 +230,10 @@ export default {
         times: [],
         page: 1,
         limit: 10,
-        total: 0,
         endTime: null,
         beginTime: null
       },
+      total: 0,
       formUseState: {},
       updateState: null,
       updateBCFaceValue: null,
@@ -304,12 +298,12 @@ export default {
         if (res.code == 0) {
           if (res.total > 0) {
             this.tableData = res.items;
-            this.formInline.total = res.total;
+            this.total = res.total;
             this.numbers = res.data;
             this.loading = false;
           } else {
             this.loading = false;
-            this.formInline.total = 0;
+            this.total = 0;
             this.tableData = [];
             this.emptytext = "暂无数据";
           }
@@ -322,11 +316,18 @@ export default {
     },
     //重置
     clearText() {
-      (this.formInline = {}),
-        (this.formInline.times = [
+      this.formInline = {
+        channelId: null,
+        faceValueId: null,
+        useState: null,
+        cardNumber: null,
+        userNameOrId: null,
+        times: [
           new Date().setHours(0, 0, 0),
           new Date().setHours(0, 0, 0) + 86398999
-        ]);
+        ]
+      };
+      this.$message.success("重置成功");
     },
     //获取寄售通道
     getChannelList() {
@@ -340,13 +341,8 @@ export default {
       });
     },
     //获取卡面值，通过卡类型的id获取对应的卡面值
-    facevalueList(vName) {
-      // 通过卡name对应卡ID
-      let obj = {};
-      obj = this.channels.find(item => {
-        return item.name === vName;
-      });
-      getFaceValues({ cid: obj.id }).then(res => {
+    facevalueList(vId) {
+      getFaceValues({ cid: vId }).then(res => {
         console.log(res);
         if (res.code === 0) {
           if (res.data != undefined) {

@@ -38,6 +38,32 @@ for (var i = 0; i < count; i++) {
     'realName|1': ['张三', '李四', '王五']
   }))
 }
+statisticsData.forEach(item => {
+  switch (item.channelId) {
+    case 1:
+      item.channelName = '移动充值卡'
+      break;
+    case 2:
+      item.channelName = '联通充值卡'
+      break;
+    case 3:
+      item.channelName = '电信全国充值卡'
+      break;
+  }
+})
+statisticsUserData.forEach(item => {
+  switch (item.channelId) {
+    case 1:
+      item.channelName = '移动充值卡'
+      break;
+    case 2:
+      item.channelName = '联通充值卡'
+      break;
+    case 3:
+      item.channelName = '电信全国充值卡'
+      break;
+  }
+})
 export default {
   getStatisticsData: config => {
     const { beginTime, endTime } = JSON.parse(config.body)

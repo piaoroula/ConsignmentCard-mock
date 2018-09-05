@@ -2,7 +2,7 @@ import Mock from 'mockjs'
 import { param2Obj } from '@/utils'
 import { isupdateBCFaceValue } from "@/utils/validate";
 let cardsData = []
-const count = 10
+const count = 100
 var data
 for (var i = 0; i < count; i++) {
   cardsData.push(Mock.mock({
@@ -14,8 +14,8 @@ for (var i = 0; i < count; i++) {
     'name|1': ['移动充值卡', '联通充值卡', '电信全国充值卡'],
     'consumptionName|1': ['渠道1', '渠道2', '渠道3'],
     'faceValue|1': [20, 30, 40],
-    'settlementFaceValue': '@integer(60, 100)',
-    'settlementAmount': '@integer(60, 100)',
+    'settlementFaceValue': null,
+    'settlementAmount': null,
     'useState|1': [0, 1, 2, 3, 4, 5, 6],// 卡状态 随机选取 1 个元素,0=>待处理,1=>已取出,2=>处理中,3=>成功,4=>失败,5=>可疑,6=>可疑核查中,7=>未知
     'userTime': '5',
     'takeOutTime': '@datetime',
@@ -25,6 +25,12 @@ for (var i = 0; i < count; i++) {
     'remark': '@csentence(5)',
   }))
 }
+cardsData.forEach(item => {
+  if (item.useState == 3) {
+    item.settlementFaceValue = Mock.mock('@integer(60, 100)')
+    item.settlementAmount = Mock.mock('@integer(60, 100)')
+  }
+})
 export default {
   getCardData: config => {
     const { name, buyRate, faceValueId, useState, cardNumber, beginTime, endTime, userNameOrId, limit = 20, page = 1 } = JSON.parse(config.body)
@@ -50,11 +56,19 @@ export default {
       if (name && item.name != name) return false
       if (buyRate && item.buyRate != buyRate) return false
       if (faceValueId && item.faceValue != faceValueId) return false
-      if (useState && item.useState != useState) return false
+      if (useState != null) {
+        if (item.useState != JSON.parse(config.body).useState) {
+          return false
+        }
+      }
       if (cardNumber && item.cardNumber != cardNumber) return false
       if (beginTime && item.beginTime < beginTime) return false
       if (endTime && item.endTime > endTime) return false
-      if (userNameOrId && item.realName != userNameOrId) return false
+      if (userNameOrId != null) {
+        if (item.realName != JSON.parse(config.body).userNameOrId && item.id != JSON.parse(config.body).userNameOrId) {
+          return false
+        }
+      }
       return true
     })
     //计算寄售总面值，结算总面值，结算总金额

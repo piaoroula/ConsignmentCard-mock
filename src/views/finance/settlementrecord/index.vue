@@ -14,7 +14,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit">提交查询</el-button>
-          <el-button @click="onClear">重置</el-button>
+          <el-button @click="reSet">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -36,7 +36,7 @@
       <el-table-column prop="remark" align="center" label="备注"> </el-table-column>
     </el-table>
     <div class="box-card-pagination">
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="formInline.page" :page-sizes="[10,20,30, 50]" :page-size="formInline.limit" layout="total, sizes, prev, pager, next, jumper" :total="formInline.total">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="formInline.page" :page-sizes="[10,20,30, 50]" :page-size="formInline.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
   </el-card>
@@ -64,10 +64,10 @@ export default {
         times: [],
         page: 1,
         limit: 20,
-        total: 0,
         endTime: null,
         startTime: null
       },
+      total: 0,
       states: [
         { id: 0, name: "待处理" },
         { id: 1, name: "处理中" },
@@ -104,7 +104,7 @@ export default {
         if (res.code == 0) {
           if (res.total > 0) {
             this.tableData = res.item;
-            this.formInline.total = res.total;
+            this.total = res.total;
             this.tableData.forEach(item => {
               if (item.state != 0) {
                 item.processTime = moment(item.processTime).format(
@@ -117,7 +117,7 @@ export default {
             });
           } else {
             this.tableData = [];
-            this.formInline.total = 0;
+            this.total = 0;
           }
         }
       });
@@ -139,8 +139,8 @@ export default {
       this.getlist();
     },
     //重置
-    onClear() {
-      this.formInline = {};
+    reSet() {
+      this.formInline.state = null;
       this.formInline.times = [
         new Date().setDate(new Date().getDate() - 7),
         new Date()

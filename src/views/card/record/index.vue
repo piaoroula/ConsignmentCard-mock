@@ -2,8 +2,8 @@
   <div class="dashboard-container background record">
     <el-form :inline="true" :model="recordSearchForm" class="recordSearch-form-inline" ref="recordSearchForm">
       <el-form-item label="卡类型">
-        <el-select v-model="recordSearchForm.ChannelId" filterable clearable placeholder="请选择卡类型">
-          <el-option v-for="channel in ChannelList" :key="channel.id" :label="channel.name" :value="channel.name">
+        <el-select v-model="recordSearchForm.ChannelId" filterable clearable placeholder="请选择卡类型" @change="selectChannels">
+          <el-option v-for="channel in ChannelList" :key="channel.id" :label="channel.name" :value="channel.id">
             <span style="float: left">{{ channel.name }}</span>
             <span style="float: right; color: #8492a6; font-size: 13px">{{ channel.buyRate }}</span>
           </el-option>
@@ -11,7 +11,7 @@
       </el-form-item>
       <el-form-item>
         <el-select v-model="recordSearchForm.FaceValueId" clearable placeholder="请先选择卡类型">
-          <el-option v-for='FaceValueIds in FaceValueList' :value="FaceValueIds.faceValue" :key="FaceValueIds.id" :label="FaceValueIds.faceValue"></el-option>
+          <el-option v-for='FaceValueIds in FaceValueList' :value="FaceValueIds.id" :key="FaceValueIds.id" :label="FaceValueIds.faceValue"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="寄售状态">
@@ -71,7 +71,7 @@
           <el-tag v-if="scope.row.useState==3" v-model="scope.row.useState" type='success'>成功</el-tag>
           <el-tag v-if="scope.row.useState==4" v-model="scope.row.useState" type='danger'>失败</el-tag>
           <el-tag v-if="scope.row.useState==5" v-model="scope.row.useState" type='danger'>可疑</el-tag>
-          <el-tag v-if="scope.row.useState==6" v-model="scope.row.useState" type='danger'>可疑核查中</el-tag>
+          <!-- <el-tag v-if="scope.row.useState==6" v-model="scope.row.useState" type='danger'>可疑核查中</el-tag> -->
         </template>
       </el-table-column>
       <el-table-column label="耗时" align="center" width="80">
@@ -107,6 +107,7 @@ import {
   getAllRecords,
   againConsignment
 } from "@/api/card";
+
 import selecttime from "@/data/selecttime";
 
 export default {
@@ -224,13 +225,8 @@ export default {
       });
     },
     //获取卡面值，通过卡类型的id获取对应的卡面值
-    selectChannels(vName) {
-      // 通过卡name对应卡ID
-      let obj = {};
-      obj = this.ChannelList.find(item => {
-        return item.name === vName;
-      });
-      getFaceValues({ cid: obj.id }).then(res => {
+    selectChannels(vId) {
+      getFaceValues(vId).then(res => {
         if (res.code === 0) {
           if (res.data != undefined) {
             this.FaceValueList = res.data;
@@ -252,7 +248,7 @@ export default {
         this.recordSearchForm.times[1]
       ).format("YYYY-MM-DD HH:mm:ss");
       var data = {
-        name: this.recordSearchForm.ChannelId,
+        ChannelId: this.recordSearchForm.ChannelId,
         beginTime: this.recordSearchForm.times[0],
         endTime: this.recordSearchForm.times[1],
         FaceValueId: this.recordSearchForm.FaceValueId,
@@ -265,7 +261,6 @@ export default {
       GetRecords(data).then(res => {
         if (res.code == 0) {
           if (res.total > 0) {
-            console.log(res.data);
             this.channelData = res.items;
             this.numbers = res.data;
             this.channelData.forEach(item => {
@@ -325,40 +320,17 @@ export default {
 
     //重置
     resetRecordSearch(recordSearchForm) {
-      this.recordSearchForm = {};
+      this.recordSearchForm.ChannelId = null;
+      this.recordSearchForm.FaceValueId = null;
+      this.recordSearchForm.useState = null;
+      this.recordSearchForm.statisticsState = null;
+      this.recordSearchForm.CardNumber = null;
       this.recordSearchForm.times = [
         new Date().setHours(0, 0, 0),
         new Date().setHours(0, 0, 0) + 86398999
       ];
       this.$message.success("重置成功");
     },
-
-    // //计算面值不符，3=>成功，4=>失败,2=>处理中的张数
-    // getCount() {
-    //   this.recordSearchForm.times[0] = moment(
-    //     this.recordSearchForm.times[0]
-    //   ).format("YYYY-MM-DD HH:mm:ss");
-    //   this.recordSearchForm.times[1] = moment(
-    //     this.recordSearchForm.times[1]
-    //   ).format("YYYY-MM-DD HH:mm:ss");
-    //   var data = {
-    //     name: this.recordSearchForm.ChannelId,
-    //     beginTime: this.recordSearchForm.times[0],
-    //     endTime: this.recordSearchForm.times[1],
-    //     FaceValueId: this.recordSearchForm.FaceValueId,
-    //     useState: this.recordSearchForm.useState,
-    //     statisticsState: this.recordSearchForm.statisticsState,
-    //     CardNumber: this.recordSearchForm.CardNumber,
-    //     limit: this.recordSearchForm.limit,
-    //     page: this.recordSearchForm.page
-    //   };
-    //   getStatistics(data).then(res => {
-    //     if (res.code == 0) {
-    //       this.numbers = res.data;
-    //       this.total = res.total;
-    //     }
-    //   });
-    // },
     //通过指定 Table 组件的 row-class-name 属性来为 Table 中的某一行添加 class，表明该行处于某种状态
     tableRowClassName({ row, rowIndex }) {
       if (row.useState === 4) {

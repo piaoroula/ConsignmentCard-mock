@@ -47,27 +47,6 @@ for (var i = 108; i < 115; i++) {
     'roles|1': ['ConsignManage', 'Consign', 'ConsignManage', 'OrderManage', 'SuperManage'],//1=>ConsignManage，2=>Consign，3=>ConsignManage，4=>OrderManage，5=>SuperManage
   }))
 }
-// OtherUsersData.forEach(item => {
-//   item.roles.forEach(role => {
-//     switch (role.id) {
-//       case 1:
-//         role.name = 'ConsignManage';
-//         break;
-//       case 2:
-//         role.name = 'Consign';
-//         break;
-//       case 3:
-//         role.name = 'Order';
-//         break;
-//       case 4:
-//         role.name = 'OrderManage';
-//         break;
-//       case 5:
-//         role.name = 'SuperManage';
-//         break;
-//     }
-//   })
-// })
 
 for (var i = 0; i < count; i++) {
   productData.push(Mock.mock({

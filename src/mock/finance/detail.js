@@ -2,7 +2,7 @@ import Mock from 'mockjs'
 import { param2Obj } from '@/utils'
 const financeDetailData = []
 var data
-var count = 5
+var count = 100
 for (var i = 0; i < count; i++) {
   financeDetailData.push(Mock.mock({
     'id': '@increment',
@@ -29,8 +29,16 @@ export default {
     let mockList = financeDetailData.filter(item => {
       if (beginTime && item.creationTime < beginTime) return false
       if (endTime && item.creationTime > endTime) return false
-      if (type && item.type !== type) return false
-      if (classify && item.classify !== classify) return false
+      if (type != null) {
+        if (item.type !== JSON.parse(config.body).type) {
+          return false
+        }
+      }
+      if (classify != null) {
+        if (item.classify !== JSON.parse(config.body).classify) {
+          return false
+        }
+      }
       return true
     })
     const pageList = mockList.filter((item, index) => index < limit * page && index >= limit * (page - 1))

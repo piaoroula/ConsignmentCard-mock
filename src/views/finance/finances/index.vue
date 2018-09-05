@@ -54,7 +54,7 @@
       <el-table-column prop="remark" align="center" label="备注"> </el-table-column>
     </el-table>
     <div class="box-card-pagination">
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="formInline.page" :page-sizes="[10,20,30, 50]" :page-size="formInline.limit" layout="total, sizes, prev, pager, next, jumper" :total="formInline.total">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="formInline.page" :page-sizes="[10,20,30, 50]" :page-size="formInline.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
   </el-card>
@@ -86,10 +86,10 @@ export default {
         ],
         page: 1,
         limit: 20,
-        total: 0,
         endTime: null,
         startTime: null
       },
+      total: 0,
       usestates: [{ id: 0, name: "支出" }, { id: 1, name: "收入" }],
       usestates1: [
         { id: 0, name: "寄售收入" },
@@ -123,12 +123,7 @@ export default {
         times: [
           new Date().setHours(0, 0, 0),
           new Date().setHours(0, 0, 0) + 86398999
-        ],
-        page: 1,
-        limit: 20,
-        total: 0,
-        endTime: null,
-        startTime: null
+        ]
       };
     },
 
@@ -165,9 +160,9 @@ export default {
                 }
               });
               this.loading = false;
-              this.formInline.total = res.total;
+              this.total = res.total;
             } else {
-              this.formInline.total = 0;
+              this.total = 0;
               this.tableData = [];
               this.loading = false;
               this.emptytext = "没有符合条件的数据";

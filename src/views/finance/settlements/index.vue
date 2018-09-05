@@ -64,7 +64,7 @@
       </el-table-column>
     </el-table>
     <div class="box-card-pagination">
-      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="formInline.page" :page-sizes="[10,20,30, 50]" :page-size="formInline.limit" layout="total, sizes, prev, pager, next, jumper" :total="formInline.total">
+      <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="formInline.page" :page-sizes="[10,20,30, 50]" :page-size="formInline.limit" layout="total, sizes, prev, pager, next, jumper" :total="total">
       </el-pagination>
     </div>
     <el-dialog title="修改提现状态" :visible.sync="editStateVisible" label-width="80px">
@@ -226,9 +226,9 @@ export default {
                 );
               }
             });
-            this.formInline.total = res.total;
+            this.total = res.total;
           } else {
-            this.formInline.total = 0;
+            this.total = 0;
             this.accounts = 0;
             this.tableData = [];
           }
@@ -243,7 +243,8 @@ export default {
     },
     //重置
     onClear() {
-      this.formInline = {};
+      this.formInline.userNameOrId = null;
+      this.formInline.state = null;
       this.formInline.times = [
         new Date().setHours(0, 0, 0) - 24 * 60 * 60 * 1000,
         new Date().setHours(0, 0, 0) + 86398999

@@ -30,7 +30,11 @@ export default {
     let mockList = settlementrecordData.filter(item => {
       if (beginTime && item.creationTime < beginTime) return false
       if (endTime && item.creationTime > endTime) return false
-      if (state && item.state !== state) return false
+      if (state != null) {
+        if (item.state !== JSON.parse(config.body).state) {
+          return false
+        }
+      }
       return true
     })
     const pageList = mockList.filter((item, index) => index < limit * page && index >= limit * (page - 1))

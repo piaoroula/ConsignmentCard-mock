@@ -4,7 +4,7 @@ import { userinfoData } from '../userinfo.js'
 import { financeDetailData } from './detail'
 const financesData = []
 var data
-var count = 5
+var count = 50
 for (var i = 0; i < count; i++) {
   financesData.push(Mock.mock({
     'id': '@increment',
@@ -34,10 +34,17 @@ export default {
     let mockList = financesData.filter(item => {
       if (beginTime && item.creationTime < beginTime) return false
       if (endTime && item.creationTime > endTime) return false
-      if (userNameOrId && item.realName !== userNameOrId) return false
-      if (userNameOrId && item.userName !== userNameOrId) return false
-      if (type && item.type !== type) return false
-      if (classify && item.classify !== classify) return false
+      if (userNameOrId && item.realName !== userNameOrId && item.userName !== userNameOrId) return false
+      if (type != null) {
+        if (item.type !== JSON.parse(config.body).type) {
+          return false
+        }
+      }
+      if (classify != null) {
+        if (item.classify !== JSON.parse(config.body).classify) {
+          return false
+        }
+      }
       return true
     })
     const pageList = mockList.filter((item, index) => index < limit * page && index >= limit * (page - 1))

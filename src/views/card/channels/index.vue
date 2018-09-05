@@ -192,6 +192,7 @@ export default {
         buyRate: null,
         state: null
       },
+      oldBuyRate: null,
       formInline: {
         page: 1,
         limit: 20,
@@ -258,7 +259,6 @@ export default {
           addChannel(data).then(res => {
             if (res.code === 0) {
               this.getlist();
-
               this.$message.success(res.msg);
               this.channelVisible = false;
               this.addInfoLoading = false;
@@ -285,6 +285,7 @@ export default {
         console.log(res);
         if (res.code === 0) {
           this.formRate = row;
+          this.oldBuyRate = row.buyRate;
         } else {
           this.$message.error(res.msg);
         }
@@ -297,9 +298,14 @@ export default {
         id: this.formRate.id,
         buyRate: this.formRate.buyRate
       };
-      if (this.formRate.buyRate != "") {
+      if (this.formRate.buyRate == "") {
+        this.updateBuyRateLoading = false;
+        this.$message.error("费率不能为空");
+      } else if (this.formRate.buyRate == this.oldBuyRate) {
+        this.updateBuyRateLoading = false;
+        this.$message.error("费率未修改，还是" + this.oldBuyRate);
+      } else {
         updateChannelsRate(data).then(res => {
-          console.log(res);
           if (res.code === 0) {
             this.$message.success(res.msg);
             this.buyRateVisible = false;
@@ -309,9 +315,6 @@ export default {
             this.updateBuyRateLoading = false;
           }
         });
-      } else {
-        this.updateBuyRateLoading = false;
-        this.$message.error("费率不能为空");
       }
     },
     //打开面值管理弹窗
