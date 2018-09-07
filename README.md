@@ -12,7 +12,9 @@ You need to install [node](http://nodejs.org/) and [git](https://git-scm.com/) l
  **Note: This project uses element-ui@2.3.0+ version, so the minimum compatible vue@2.5.0+**
 
  <p align="center">
-  <img width="900" src="https://wpimg.wallstcn.com/a5894c1b-f6af-456e-82df-1151da0839bf.png">
+   <img width="900" src="src/assets/ex.png">
+  <img width="900" src="src/assets/ex1.png">
+  <img width="900" src="src/assets/ex2.png">
 </p>
 
 ## Features
@@ -38,15 +40,9 @@ You need to install [node](http://nodejs.org/) and [git](https://git-scm.com/) l
   - Screenfull
   - Responsive Sidebar
 
-- Editor
-  - Rich Text Editor
-  - Markdown Editor
-  - JSON Editor
 
 - Excel
   - Export Excel
-  - Export zip
-  - Upload Excel
   - Visualization Excel
 
 - Table
@@ -71,12 +67,8 @@ You need to install [node](http://nodejs.org/) and [git](https://git-scm.com/) l
   - CountTo
 
 - Advanced Example
-- Error Log
 - Dashboard
 - Guide Page
-- Echarts
-- Clipboard
-- Markdown to html
 ```
 
 ## Getting started
@@ -117,26 +109,3 @@ npm run lint
 # auto fix
 npm run lint -- --fix
 ```
-
-Refer to [Documentation](https://panjiachen.github.io/vue-element-admin-site/guide/essentials/deploy.html) for more information
-
-## Changelog
-Detailed changes for each release are documented in the [release notes](https://github.com/PanJiaChen/vue-element-admin/releases).
-
-## Online Demo
-[Preview](http://panjiachen.github.io/vue-element-admin)
-
-## Donate
-If you find this project useful, you can buy author a glass of juice :tropical_drink:
-
-![donate](https://wpimg.wallstcn.com/bd273f0d-83a0-4ef2-92e1-9ac8ed3746b9.png)
-
-[Paypal Me](https://www.paypal.me/panfree23)
-
-[Buy me a coffee](https://www.buymeacoffee.com/Pan)
-
-## License
-
-[MIT](https://github.com/PanJiaChen/vue-element-admin/blob/master/LICENSE)
-
-Copyright (c) 2017-present PanJiaChen
