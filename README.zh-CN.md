@@ -51,6 +51,8 @@
 
  <p align="center">
   <img width="900" src="src/assets/ex.png">
+  <img width="900" src="src/assets/ex1.png">
+  <img width="900" src="src/assets/ex2.png">
 </p>
 
 ## 功能
