@@ -3,8 +3,8 @@ import request from '@/utils/request'
 export function getNoticesPage(data) {
   return request({
     url: '/api/Article/GetNoticesPage',
-    method: 'post',
-    data
+    method: 'get',
+    params: { data }
   })
 }
 
@@ -28,7 +28,7 @@ export function deleteNotice(id) {
   return request({
     url: '/api/Manage/DeleteNotice',
     method: 'post',
-    params: { id }
+    data: { id }
   })
 }
 

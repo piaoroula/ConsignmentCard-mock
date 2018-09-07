@@ -42,7 +42,7 @@
             <el-input v-model="formInfo.title" placeholder="请输入公告标题"></el-input>
           </el-form-item>
           <el-form-item>
-            <tinymce :height="300" v-model="formInfo.content" aria-placeholder="请输入公告内容"></tinymce>
+            <tinymce :height="300" ref="editor" v-model="formInfo.content" aria-placeholder="请输入公告内容"></tinymce>
           </el-form-item>
           <el-form-item style="bottom:20px;">
             <el-button type="primary" :loading="addInfoLoading" @click="addInfo">提交</el-button>
@@ -66,25 +66,25 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import Tinymce from '@/components/Tinymce'
+import { mapGetters } from "vuex";
+import Tinymce from "@/components/Tinymce";
 import {
   getNoticesPage,
   addNotice,
   updateNotice,
   deleteNotice
-} from '@/api/mNotice'
+} from "@/api/mNotice";
 
 export default {
-  name: 'notice',
+  name: "notice",
   components: { Tinymce },
   computed: {
-    ...mapGetters(['name', 'roles'])
+    ...mapGetters(["name", "roles"])
   },
   data() {
     return {
       options: {
-        group: 'mission'
+        group: "mission"
       },
       addInfoLoading: false,
       tableData: [],
@@ -92,8 +92,11 @@ export default {
       formInfo: {
         id: null,
         title: null,
-        content: ''
+        content: null,
+        creationTime: null
       },
+      oldTitle: null,
+      oldContent: null,
       formInline: {
         page: 1,
         limit: 20,
@@ -102,131 +105,139 @@ export default {
       loading: false,
       noticeVisible: false,
       showNoticeVisible: false,
-      emptytext: '暂无数据'
-    }
+      emptytext: "暂无数据"
+    };
   },
   created() {
-    this.getlist()
+    this.getlist();
   },
   methods: {
+    //获取公告数据
+    getlist() {
+      this.loading = true;
+      var data = {
+        page: this.formInline.page,
+        limit: this.formInline.limit
+      };
+      getNoticesPage(data)
+        .then(res => {
+          console.log(res);
+          if (res.code == 0) {
+            if (res.total > 0) {
+              this.tableData = res.items;
+              this.formInline.total = res.total;
+            } else {
+              this.tableData = [];
+              this.formInline.total = 0;
+            }
+          }
+          this.loading = false;
+        })
+        .catch(() => {
+          this.loading = false;
+        });
+    },
+    //新增公告
+    onSubmit() {
+      this.formInfo = {};
+      this.noticeVisible = true;
+    },
+
+    addInfo() {
+      this.addInfoLoading = true;
+      var data = {
+        title: this.formInfo.title,
+        content: this.formInfo.content
+      };
+      var updateData = {
+        id: this.formInfo.id,
+        title: this.formInfo.title,
+        content: this.formInfo.content
+      };
+      if (this.formInfo.id != undefined) {
+        if (
+          this.formInfo.title == this.oldTitle &&
+          this.formInfo.content == this.oldContent
+        ) {
+          this.addInfoLoading = false;
+          this.$message.error("标题和内容没做更改");
+        } else {
+          updateNotice(updateData)
+            .then(res => {
+              if (res.code == 0) {
+                this.noticeVisible = false;
+                this.$message.success(res.msg);
+              } else {
+                this.$message.error(res.msg);
+              }
+              this.addInfoLoading = false;
+            })
+            .catch(() => {
+              this.addInfoLoading = false;
+            });
+        }
+      } else if (this.formInfo.id == undefined) {
+        if (this.formInfo.title != null) {
+          addNotice(data).then(res => {
+            if (res.code == 0) {
+              this.noticeVisible = false;
+              this.getlist();
+              this.$message.success("添加一条数据成功");
+            } else {
+              this.$message.error(res.msg);
+            }
+          });
+        } else {
+          this.$message.error("标题不能为空");
+        }
+        this.addInfoLoading = false;
+      }
+    },
+    //查看详情
+    showInfo(row) {
+      this.showNoticeVisible = true;
+      this.formInfo = row;
+    },
+    //修改公告
+    openInfo(row) {
+      this.formInfo = row;
+      this.oldTitle = row.title;
+      this.oldContent = row.content;
+      this.noticeVisible = true;
+    },
+    //删除公告
+    deleteInfo(row) {
+      deleteNotice(row.id).then(res => {
+        if (res.code == 0) {
+          this.$message.success(res.msg);
+          this.getlist();
+        } else {
+          this.$message.error(res.msg);
+        }
+      });
+    },
+    //分页
     handleSizeChange(val) {
-      this.formInfo.limit = val
-      this.getlist()
+      this.formInfo.limit = val;
+      this.getlist();
     },
     handleCurrentChange(val) {
-      this.formInfo.page = val
-      this.getlist()
-    },
-    onSubmit() {
-      this.clearFormInfo()
-      this.noticeVisible = true
-    },
-    getlist() {
-      var data = this.formInline
-      this.tableData = []
-      this.formInline.total = 0
-      getNoticesPage(data).then(res => {
-        if (res.code === 0) {
-          if (res.data != null && res.data.length > 0) {
-            this.tableData = res.data
-            this.formInline.total = res.count
-          }else{
-            this.tableData = [];
-          }
-        }
-      })
-    },
-    clearFormInfo() {
-      this.formInfo.id = null
-      this.formInfo.title = null
-      this.formInfo.content = ''
-    },
-    openInfo(row, index) {
-      this.formInfo = row
-      this.noticeVisible = true
-    },
-    showInfo(row, index) {
-      this.formInfo = row
-      this.showNoticeVisible = true
-    },
-    deleteInfo(row, index) {
-      this.formInfo = row
-      this.$confirm('是否删除标题为[' + row.title + ']?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        deleteNotice(this.formInfo.id).then(res => {
-          if (res.code === 0) {
-            this.$message({
-              message: '删除公告成功！',
-              type: 'success'
-            })
-          } else {
-            this.$message.error('删除公告失败！')
-          }
-          this.addInfoLoading = false
-        })
-        this.getlist()
-        this.clearFormInfo()
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
-        })
-      })
-    },
-    addInfo() {
-      this.addInfoLoading = true
-      var data = this.formInfo
-      if (data.id > 0) {
-        updateNotice(data).then(res => {
-          if (res.code === 0) {
-            this.$message({
-              message: '修改公告成功！',
-              type: 'success'
-            })
-            this.getlist()
-            this.noticeVisible = false
-            this.clearFormInfo()
-          } else {
-            this.$message.error('修改公告失败！')
-          }
-          this.addInfoLoading = false
-        }).catch(()=>{
-            this.addInfoLoading = false
-          });
-      } else {
-        addNotice(data).then(res => {
-          if (res.code === 0) {
-            this.$message({
-              message: '新增公告成功！',
-              type: 'success'
-            })
-            this.getlist()
-            this.noticeVisible = false
-            this.clearFormInfo()
-          } else {
-            this.$message.error('新增公告失败！')
-          }
-          this.addInfoLoading = false
-        }).catch(()=>{
-            this.addInfoLoading = false
-          });
-      }
+      this.formInfo.page = val;
+      this.getlist();
     }
   }
-}
+};
 </script>
 <style>
 .add-notice .el-dialog {
   width: 95%;
-  max-width: 900px;  
+  max-width: 900px;
   height: 650px;
   top: 25px !important;
   margin-top: 0px !important;
 }
-.el-form-item--medium .el-form-item__content, .el-form-item--medium .el-form-item__label{
+.el-form-item--medium .el-form-item__content,
+.el-form-item--medium .el-form-item__label {
   line-height: 26px;
 }
 </style>

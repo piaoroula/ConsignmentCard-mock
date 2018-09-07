@@ -20,6 +20,7 @@ import financesAPI from './finance/finances'
 import usersAPI from './system/users'
 import roleAPI from './system/role'
 import identityAPI from './system/identity'
+import noticeAPI from './system/notice'
 // Mock.setup({
 //   timeout: '350-600'
 // })
@@ -122,6 +123,14 @@ Mock.mock(/\/api\/Manage\/GetRoles/, 'get', roleAPI.getRoleList)
 Mock.mock(/\/api\/Manage\/GetRoleById/, 'get', roleAPI.getUserRoles)
 Mock.mock(/\/api\/Manage\/UpdateUserRole/, 'post', roleAPI.changeRole)
 Mock.mock(/\/api\/Account\/GetIdentification/, 'post', identityAPI.getIdentity)
+
+
+//系统公告
+Mock.mock(/\/api\/Article\/GetNoticesPage/, 'get', noticeAPI.getNoticeData)
+Mock.mock(/\/api\/Manage\/AddNotice/, 'post', noticeAPI.addNotice)
+Mock.mock(/\/api\/Manage\/UpdateNotice/, 'post', noticeAPI.changeNotice)
+Mock.mock(/\/api\/Manage\/DeleteNotice/, 'post', noticeAPI.deleteNotice)
+
 
 
 // 搜索相关
