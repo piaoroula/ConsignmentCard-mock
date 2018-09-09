@@ -18,7 +18,7 @@
           <span class="more" @click='goNotice'>查看更多</span>
         </h4>
         <el-collapse @change="handleChange" class="noticeList" :loading='loading'>
-          <el-collapse-item v-for='notice in noticeData' :key='notice.id'>
+          <el-collapse-item v-for='notice in noticeData.slice(0,5)' :key='notice.id'>
             <template slot="title">
               <span class="time">[{{notice.creationTime}}]</span>
               {{notice.title}}
@@ -34,15 +34,15 @@
 
 
 <script>
-import GithubCorner from "@/components/GithubCorner";
-import PanelGroup from "./components/PanelGroup";
-import LineChart from "./components/LineChart";
-import RaddarChart from "./components/RaddarChart";
-import PieChart from "./components/PieChart";
-import BarChart from "./components/BarChart";
-import TransactionTable from "./components/TransactionTable";
-import TodoList from "./components/TodoList";
-import BoxCard from "./components/BoxCard";
+import GithubCorner from '@/components/GithubCorner'
+import PanelGroup from './components/PanelGroup'
+import LineChart from './components/LineChart'
+import RaddarChart from './components/RaddarChart'
+import PieChart from './components/PieChart'
+import BarChart from './components/BarChart'
+import TransactionTable from './components/TransactionTable'
+import TodoList from './components/TodoList'
+import BoxCard from './components/BoxCard'
 
 const lineChartData = {
   newVisitis: {
@@ -61,10 +61,10 @@ const lineChartData = {
     expectedData: [130, 140, 141, 142, 145, 150, 160],
     actualData: [120, 82, 91, 154, 162, 140, 130]
   }
-};
-import { getNoticesPage } from "@/api/mNotice";
+}
+import { getNoticesPage } from '@/api/mNotice'
 export default {
-  name: "dashboard-admin",
+  name: 'dashboard-admin',
   components: {
     GithubCorner,
     PanelGroup,
@@ -81,78 +81,43 @@ export default {
       lineChartData: lineChartData.newVisitis,
       loading: false,
       noticeData: [
-        {
-          title: "发射点发射点发",
-          content: "按点击啊",
-          creationTime: "2018-09-07"
-        },
-        {
-          title: "发射点发射点发",
-          content: "按点击啊",
-          creationTime: "2018-09-07"
-        },
-        {
-          title: "发射点发射点发",
-          content: "按点击啊",
-          creationTime: "2018-09-07"
-        },
-        {
-          title: "发射点发射点发",
-          content: "按点击啊",
-          creationTime: "2018-09-07"
-        },
-        {
-          title: "发射点发射点发",
-          content: "按点击啊",
-          creationTime: "2018-09-07"
-        },
-        {
-          title: "发射点发射点发",
-          content: "按点击啊",
-          creationTime: "2018-09-07"
-        },
-        {
-          title: "发射点发射点发",
-          content: "按点击啊",
-          creationTime: "2018-09-07"
-        }
       ]
-    };
+    }
   },
   created() {
-    this.getlist();
+    this.getlist()
   },
   methods: {
     handleSetLineChartData(type) {
-      this.lineChartData = lineChartData[type];
+      this.lineChartData = lineChartData[type]
     },
     handleChange(val) {
-      console.log(val);
+      console.log(val)
     },
-    //获取公告数据
+    // 获取公告数据
     getlist() {
-      this.loading = true;
+      this.loading = true
       getNoticesPage()
         .then(res => {
-          console.log(res);
+          console.log(res)
           if (res.code == 0) {
             if (res.total > 0) {
-              this.noticeData = res.items;
+              this.noticeData = res.items
             } else {
-              this.noticeData = [];
+              this.noticeData = []
             }
           }
-          this.loading = false;
+          this.loading = false
         })
         .catch(() => {
-          this.loading = false;
-        });
+          this.loading = false
+        })
     },
     goNotice() {
-      this.$router.push({ path: "/manage/notice" });
+      this.$router.push({ path: '/manage/notice' })
     }
   }
-};
+}
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>

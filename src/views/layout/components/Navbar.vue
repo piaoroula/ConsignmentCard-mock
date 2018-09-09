@@ -19,7 +19,8 @@
 
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
         <div class="avatar-wrapper">
-          <img class="user-avatar" :src="avatar+'?imageView2/1/w/80/h/80'">
+          <!-- <img class="user-avatar" :src="avatar+'?imageView2/1/w/80/h/80'"> -->
+          <span>{{username}}</span>
           <i class="el-icon-caret-bottom"></i>
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -50,7 +51,7 @@ import ErrorLog from '@/components/ErrorLog'
 import Screenfull from '@/components/Screenfull'
 import LangSelect from '@/components/LangSelect'
 import ThemePicker from '@/components/ThemePicker'
-
+import { getUserName } from '@/utils/auth'
 export default {
   components: {
     Breadcrumb,
@@ -66,6 +67,10 @@ export default {
       'name',
       'avatar'
     ])
+  },
+  created() {
+    console.log(getUserName())
+    this.username = getUserName()
   },
   methods: {
     toggleSideBar() {

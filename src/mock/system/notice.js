@@ -1,19 +1,25 @@
 import Mock from 'mockjs'
 import { param2Obj } from '@/utils'
-let noticeData = []
+const noticeData = []
+noticeData.push({
+  id: 0,
+  title: '我们',
+  content: '<p>ppjfdxfkopuasi</p>',
+  creationTime: Mock.mock('@now()')
+})
 var data
 export default {
-  //获取公告
+  // 获取公告
   getNoticeData: config => {
     const { page = 1, limit = 20 } = param2Obj(config.url)
     const pageList = noticeData.filter((item, index) => index < limit * page && index >= limit * (page - 1))
     return {
       code: 0,
-      total: noticeData.length, //线报总数
-      items: pageList,     //每一页显示的数据
+      total: noticeData.length, // 线报总数
+      items: pageList // 每一页显示的数据
     }
   },
-  //添加公告
+  // 添加公告
   addNotice: config => {
     const { title, content } = JSON.parse(config.body)
     var idArry = []
@@ -24,7 +30,7 @@ export default {
     if (idArry.length == 0) {
       var newId = 0
     } else if (idArry.length > 0) {
-      var maxId = idArry.sort().reverse()[0];
+      var maxId = idArry.sort().reverse()[0]
       var newId = maxId + 1
     }
 
@@ -48,13 +54,13 @@ export default {
     }
     return data
   },
-  //修改公告
+  // 修改公告
   changeNotice: config => {
     const { id, title, content } = JSON.parse(config.body)
     noticeData.some(item => {
       if (item.id === id) {
         item.title = title,
-          item.content = content
+        item.content = content
         data = {
           code: 0,
           msg: '修改成功'
@@ -70,7 +76,7 @@ export default {
     })
     return data
   },
-  //删除公告
+  // 删除公告
   deleteNotice: config => {
     const { id } = JSON.parse(config.body)
     var idArry = []
