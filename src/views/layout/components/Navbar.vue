@@ -44,14 +44,14 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
-import Breadcrumb from '@/components/Breadcrumb'
-import Hamburger from '@/components/Hamburger'
-import ErrorLog from '@/components/ErrorLog'
-import Screenfull from '@/components/Screenfull'
-import LangSelect from '@/components/LangSelect'
-import ThemePicker from '@/components/ThemePicker'
-import { getUserName } from '@/utils/auth'
+import { mapGetters } from "vuex";
+import Breadcrumb from "@/components/Breadcrumb";
+import Hamburger from "@/components/Hamburger";
+import ErrorLog from "@/components/ErrorLog";
+import Screenfull from "@/components/Screenfull";
+import LangSelect from "@/components/LangSelect";
+import ThemePicker from "@/components/ThemePicker";
+import { getUserName } from "@/utils/auth";
 export default {
   components: {
     Breadcrumb,
@@ -62,27 +62,23 @@ export default {
     ThemePicker
   },
   computed: {
-    ...mapGetters([
-      'sidebar',
-      'name',
-      'avatar'
-    ])
+    ...mapGetters(["sidebar", "name", "avatar"])
   },
   created() {
-    console.log(getUserName())
-    this.username = getUserName()
+    console.log(getUserName());
+    this.username = getUserName();
   },
   methods: {
     toggleSideBar() {
-      this.$store.dispatch('toggleSideBar')
+      this.$store.dispatch("toggleSideBar");
     },
     logout() {
-      this.$store.dispatch('LogOut').then(() => {
-        location.reload()// In order to re-instantiate the vue-router object to avoid bugs
-      })
+      this.$store.dispatch("LogOut").then(() => {
+        location.reload(); // In order to re-instantiate the vue-router object to avoid bugs
+      });
     }
   }
-}
+};
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
@@ -96,7 +92,7 @@ export default {
     float: left;
     padding: 0 10px;
   }
-  .breadcrumb-container{
+  .breadcrumb-container {
     float: left;
   }
   .errLog-container {
@@ -106,8 +102,8 @@ export default {
   .right-menu {
     float: right;
     height: 100%;
-    &:focus{
-     outline: none;
+    &:focus {
+      outline: none;
     }
     .right-menu-item {
       display: inline-block;
@@ -116,11 +112,11 @@ export default {
     .screenfull {
       height: 20px;
     }
-    .international{
+    .international {
       vertical-align: top;
     }
     .theme-switch {
-      vertical-align: 15px;
+      vertical-align: 5px;
     }
     .avatar-container {
       height: 50px;
