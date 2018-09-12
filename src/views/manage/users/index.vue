@@ -172,7 +172,6 @@
           <el-form-item label="设置角色">
             <el-checkbox-group v-model="formInRole.Ids" size="mini">
               <el-checkbox v-for="role in roleList" :label="role.name" :key="role.id" :value="role.id" :checked="checked" @change="checked=!checked"></el-checkbox>
-
             </el-checkbox-group>
           </el-form-item>
           <el-form-item>
