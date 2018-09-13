@@ -54,10 +54,9 @@ const user = {
       return new Promise((resolve, reject) => {
         loginByUsername(username, userInfo.password).then(response => {
           // const data = response.data
-          console.log(response)
           commit('SET_TOKEN', response.token)
-          commit('SET_USERNAME', response.username)
           setToken(response.token)
+          commit('SET_USERNAME', response.username)
           setUserName(response.username)
           resolve()
         }).catch(error => {
@@ -70,19 +69,19 @@ const user = {
     GetUserInfo({ commit, state }) {
       return new Promise((resolve, reject) => {
         getUserInfo(state.token).then(response => {
+          console.log(response)
           if (!response) { // 由于mockjs 不支持自定义状态码只能这样hack
             reject('error')
           }
-
           if (response.roles && response.roles.length > 0) { // 验证返回的roles是否是一个非空数组
             commit('SET_ROLES', response.roles)
           } else {
             reject('getInfo: roles must be a non-null array !')
           }
-
           commit('SET_NAME', response.name)
           commit('SET_AVATAR', response.avatar)
           commit('SET_INTRODUCTION', response.introduction)
+
           resolve(response)
         }).catch(error => {
           reject(error)

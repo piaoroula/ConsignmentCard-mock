@@ -7,9 +7,9 @@
     <div class="right-menu">
       <error-log class="errLog-container right-menu-item"></error-log>
 
-      <el-tooltip effect="dark" :content="$t('navbar.screenfull')" placement="bottom">
+      <!-- <el-tooltip effect="dark" :content="$t('navbar.screenfull')" placement="bottom">
         <screenfull class="screenfull right-menu-item"></screenfull>
-      </el-tooltip>
+      </el-tooltip> -->
 
       <lang-select class="international right-menu-item"></lang-select>
 
@@ -20,7 +20,7 @@
       <el-dropdown class="avatar-container right-menu-item" trigger="click">
         <div class="avatar-wrapper">
           <!-- <img class="user-avatar" :src="avatar+'?imageView2/1/w/80/h/80'"> -->
-          <span>{{username}}</span>
+          <span style="font-size:19px">{{username}}</span>
           <i class="el-icon-caret-bottom"></i>
         </div>
         <el-dropdown-menu slot="dropdown">
@@ -115,15 +115,11 @@ export default {
     .international {
       vertical-align: top;
     }
-    .theme-switch {
-      vertical-align: 5px;
-    }
     .avatar-container {
       height: 50px;
       margin-right: 30px;
       .avatar-wrapper {
         cursor: pointer;
-        margin-top: 5px;
         position: relative;
         .user-avatar {
           width: 40px;

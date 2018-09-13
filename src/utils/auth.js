@@ -15,8 +15,8 @@ export function removeToken() {
   return Cookies.remove(TokenKey)
 }
 export function setUserName(username) {
-  return Cookies.set(UserName, username)
+  return localStorage.setItem(UserName, username)
 }
 export function getUserName() {
-  return Cookies.get(UserName)
+  return localStorage.getItem(UserName)
 }
