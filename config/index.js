@@ -12,7 +12,7 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
       '/api': {  //使用"/api"来代替"http://f.apiplus.c"  
-        target: 'http://192.168.10.237:8090/', //源地址 
+        target: 'http://192.168.10.237:8090/', //本地ip访问
         changeOrigin: true, //改变源 
         pathRewrite: {
           '^/api': '' //路径重写 
@@ -87,7 +87,7 @@ module.exports = {
     // Surge or Netlify already gzip all static assets for you.
     // Before setting to `true`, make sure to:
     // npm install --save-dev compression-webpack-plugin
-    productionGzip: false,
+    productionGzip: false, //需要下载相应的包 npm install --save-dev compression-webpack-plugin
     productionGzipExtensions: ['js', 'css'],
 
     // Run the build command with an extra argument to

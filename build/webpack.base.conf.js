@@ -37,6 +37,14 @@ module.exports = {
       '@': resolve('src'),
     }
   },
+  externals: {
+    'vue': 'Vue',
+    'element': 'ELEMENT',
+    'axios': 'axios',
+    'vue-router': 'VueRouter',
+    'vuex': 'Vuex',
+    'moment': 'moment'
+  },
   module: {
     rules: [
       ...(config.dev.useEslint ? [createLintingRule()] : []),
